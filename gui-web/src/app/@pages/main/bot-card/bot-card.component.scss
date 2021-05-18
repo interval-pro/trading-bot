@@ -1,0 +1,66 @@
+.bot-card-container {
+    box-shadow: 0 0 0.1rem 0.005rem;
+    background: rgb(202, 202, 202);
+    border-radius: 0.1rem;
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s;
+    overflow: hidden;
+    .head {
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;        
+        .info {
+            height: 3rem;
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            padding: 0 0.5rem;
+        }
+        .actions {
+            width: 20%;
+            display: flex;
+            justify-content: flex-end;
+            mat-icon {
+                color: rgb(85, 85, 85);
+                cursor: pointer;
+                margin: 0 0.5rem;
+                transition: all 0.2s;
+                &:hover {
+                    color: teal
+                }
+            }
+        }
+    }
+    .expanded {
+        border-top: 1.5px solid gray;
+        position: relative;
+        height: 8rem;
+        .expanded-content {
+            height: 5rem;
+        }
+        .footer {
+            position: relative;
+            width: 100%;
+            background-color: rgb(82, 82, 82);
+            height: 3rem;
+            bottom: 0;
+            box-shadow: 0 0 0.1rem 0.01rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            mat-icon {
+                color: rgb(255, 88, 88);
+                cursor: pointer;
+                transition: all 0.2s;
+                &:hover {
+                    color: pink
+                }
+            }
+        }
+    }
+}

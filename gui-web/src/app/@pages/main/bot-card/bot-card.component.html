@@ -1,0 +1,27 @@
+<div 
+    class="bot-card-container" 
+    [ngStyle]="{height: isExpanded ? '11rem' : '3rem'}"
+>
+    <div class="head"
+    (click)='toggleExapnd()'
+    >
+        <div class="info">
+            <div class="id"># {{ bot.id }}</div>
+            <div class="txs">TXS: {{ bot.txs }}</div>
+            <div class="pnl">PNL: {{ bot.pnl }}</div>
+            <div class="pair">{{ bot.pair }}</div>
+        </div>
+        <div class="actions">
+            <mat-icon (click)='getLog()'>receipt</mat-icon>
+            <mat-icon (click)='openSettings()'>settings</mat-icon>
+        </div>
+    </div>
+    <div class="expanded">
+        <div class="expanded-content">
+            More Info
+        </div>
+        <div class="footer">
+            <mat-icon (click)='deleteBot()'>delete</mat-icon> 
+        </div>
+    </div>
+</div>
