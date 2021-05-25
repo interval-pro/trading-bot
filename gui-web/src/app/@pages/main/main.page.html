@@ -6,7 +6,6 @@
         </p>
     </div>
     <div class="content-container">
-        <bot-card></bot-card>
-        <bot-card></bot-card>
+        <bot-card *ngFor='let bot of bots' [bot]='bot'></bot-card>
     </div>
 </div>

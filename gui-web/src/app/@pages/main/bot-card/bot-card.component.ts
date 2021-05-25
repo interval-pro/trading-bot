@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'bot-card',
@@ -6,13 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./bot-card.component.scss'],
 })
 export class BotCardComponent {
+  @Input('bot') bot: any;
+
   private _isExpanded: boolean = false;
-  bot: any = {
-    id: 2,
-    txs: 123,
-    pnl: -2,
-    pair: 'LTCUSDT'
-  }
   constructor() {}
 
   get isExpanded() {

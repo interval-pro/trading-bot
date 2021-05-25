@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { BotsService } from './@core/services/bots.service';
 
 @Component({
   selector: 'tb-app',
@@ -6,5 +7,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  constructor() {}
+  constructor(
+    private botsService: BotsService,
+  ) {
+    this.botsService.initBotListSubscription();
+  }
 }
