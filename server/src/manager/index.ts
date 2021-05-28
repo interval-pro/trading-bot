@@ -29,6 +29,7 @@ export class Bot implements IBotConfig {
   txs: number = 0;
   alerts: { [key: string]: boolean };
 
+  equity: number;
   constructor(botConfig: IBotConfig) {
     const {
         pair,
@@ -43,6 +44,8 @@ export class Bot implements IBotConfig {
 
     this.pair = pair;
     this.initAmount = initAmount;
+    this.equity = initAmount;
+
     this.percentForEachTrade = percentForEachTrade;
     this.leverage = leverage;
     this.alerts = alerts,

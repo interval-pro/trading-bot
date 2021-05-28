@@ -30,4 +30,8 @@ export class BotCardComponent {
   deleteBot(id: number) {
     this.socketService.socket.emit('removeBot', id);
   }
+
+  numberToString(length: number, value: number) {
+    return value.toFixed(length)
+  }
 }

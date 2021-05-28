@@ -16,12 +16,11 @@
             height: 3rem;
             align-items: center;
             display: flex;
-            justify-content: space-between;
-            width: 80%;
+            width: 95%;
             padding: 0 0.5rem;
         }
         .actions {
-            width: 20%;
+            width: 10%;
             display: flex;
             justify-content: flex-end;
             mat-icon {
@@ -38,9 +37,9 @@
     .expanded {
         border-top: 1.5px solid gray;
         position: relative;
-        height: 8rem;
         .expanded-content {
-            height: 5rem;
+            height: 15rem;
+            padding: 1rem;
         }
         .footer {
             position: relative;
