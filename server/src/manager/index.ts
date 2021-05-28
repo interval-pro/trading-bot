@@ -1,3 +1,5 @@
+import { binanceApi } from "../apis/binance-api.service";
+
 export interface IBotConfig {
     pair: string,
     initAmount: number;
@@ -15,6 +17,9 @@ const getId = () => {
   id += 1;
   return id;
 };
+
+export type PositionType = "SHORT" | "LONG";
+export type AlertType = "OP" | "CP" | "COP";
 
 export class Bot implements IBotConfig {
   id: number;
@@ -61,7 +66,47 @@ export class Bot implements IBotConfig {
   }
 
   handleAlert(alert: string) {
-    console.log(`Handle alert: ${alert}, Alert Type: ${this.alerts[alert]}`);
+    const isLong = alert.startsWith('long');
+    const alertType: AlertType = this.alerts[alert] as AlertType;
+    const positionType: PositionType = isLong ? "LONG" : "SHORT";
+  
+    if (alertType === 'OP') {
+      //open position;
+    }
+
+    if (alertType === 'CP') {
+      //close position;
+    }
+
+    if (alertType === 'COP') {
+      //close and open;
+    }
+  }
+
+  private async openPosition(type: PositionType) {
+    const price = await this.getCurrentPrice();
+    if (!price) return;
+    // const amount = this.equity >= this.initAmount
+    //     ? this.percentForEachTrade * this.equity
+    //     : this.percentForEachTrade * this.initAmount;
+    // this.openedPosition = new Position(type, amount, price, this.available, this.leverage, this.percentSL);
+    // this.openedPosition = new Position(type, price, this);
+
+    // this.equity -= amount;
+  }
+
+  private async closePosition(type: PositionType,) {
+    const price = await this.getCurrentPrice();
+    if (!price) return;
+    // this.openedPosition.close(price);
+    // this.equity += this.openedPosition.closeAmount;
+  }
+
+  private async getCurrentPrice(): Promise<number> {
+    const result = await binanceApi.getPrice(this.pair);
+    const { error, data } = result;
+    if (!error && data?.price) return parseFloat(data.price);
+    return 0;
   }
 }
 
