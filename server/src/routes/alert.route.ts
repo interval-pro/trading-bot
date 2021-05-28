@@ -4,8 +4,8 @@ import { handleAlerts } from '../manager';
 export const alert = Router();
 
 
-const alertsArray = [1,2,3,4,5,6,7,8];
-alertsArray.forEach((a: number) => {
+const alertsArray = [ 'long1', 'long2', 'long3', 'long4', 'short1', 'short2', 'short3', 'short4'];
+alertsArray.forEach((a: string) => {
     alert.post(`/${a}`, (req, res) => {
         try {
             handleAlerts(a);

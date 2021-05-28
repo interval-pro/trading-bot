@@ -7,7 +7,7 @@ export interface IBotConfig {
     sl?: number;
     tslAct?: number;
     tslCBRate?: number;
-    alerts: { [key: string]: boolean }
+    alerts: { [key: string]: string }
 };
 
 var id = 0;
@@ -29,7 +29,7 @@ export class Bot implements IBotConfig {
 
   pnl: number = 0;
   txs: number = 0;
-  alerts: { [key: string]: boolean };
+  alerts: { [key: string]: string };
 
   equity: number;
   constructor(botConfig: IBotConfig) {
@@ -61,7 +61,7 @@ export class Bot implements IBotConfig {
   }
 
   handleAlert(alert: string) {
-    console.log(`Handle alert: ${alert}`);
+    console.log(`Handle alert: ${alert}, Alert Type: ${this.alerts[alert]}`);
   }
 }
 
@@ -75,7 +75,6 @@ class botsManager {
     addBot(config: IBotConfig, cb: () => void) {
         const newBot = new Bot(config)
         this._allBots.push(newBot)
-        console.log(newBot)
         cb();
     }
 
@@ -90,8 +89,7 @@ class botsManager {
 
 export const myBotManager = new botsManager();
 
-export const handleAlerts = (alertNumber: number) => {
-  const alert = `a${alertNumber}`
-  const botsWithCurrentAlert = myBotManager.allBots.filter(bot => bot.alerts[alert] === true);
+export const handleAlerts = (alert: string) => {
+  const botsWithCurrentAlert = myBotManager.allBots.filter(bot => bot.alerts[alert]);
   botsWithCurrentAlert.forEach(bot => bot.handleAlert(alert));
 }

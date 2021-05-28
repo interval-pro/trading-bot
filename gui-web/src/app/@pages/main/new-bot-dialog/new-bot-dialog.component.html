@@ -2,8 +2,8 @@
     <mat-card>
         <mat-card-header><h1>Creating New Bot</h1></mat-card-header>
         <mat-card-content>
-            <div class="content-condainer" [formGroup]='cbFb'>
-                <div class="section">
+            <div class="content-condainer">
+                <div class="section" [formGroup]='cbFb'>
                     <p>
                         <mat-form-field>
                             <mat-label>Pair: </mat-label>
@@ -29,16 +29,16 @@
                           </mat-form-field>
                     </p>
                 </div>
-                <div class="section">
+                <div class="section" [formGroup]='cbFb'>
                     <p>
-                        <mat-checkbox formControlName='isSl' #sl labelPosition='before'>Stop Loss: </mat-checkbox>
+                        <mat-checkbox color='primary' formControlName='isSl' #sl labelPosition='before'>Stop Loss: </mat-checkbox>
                         <mat-form-field [ngClass]="{ invisible: !sl.checked }">
                             <mat-label>n * equity</mat-label>
                             <input formControlName='sl' step='1' type="number" matInput>
                           </mat-form-field>
                     </p>
                     <p class='tsl'>
-                        <mat-checkbox formControlName='isTsl' #tsl labelPosition='before'>Trailing SL: </mat-checkbox>
+                        <mat-checkbox color='primary' formControlName='isTsl' #tsl labelPosition='before'>Trailing SL: </mat-checkbox>
                         <span>
                             <mat-form-field [ngClass]="{ invisible: !tsl.checked }">
                                 <mat-label>Act.rate (n * equity)</mat-label>
@@ -51,19 +51,39 @@
                         </span>
                     </p>
                 </div>
-                <div class="section">
-                    <p style='color: green'>
-                        <mat-checkbox formControlName='a1' labelPosition='before'>Alert 1</mat-checkbox>
-                        <mat-checkbox formControlName='a2' labelPosition='before'>Alert 2</mat-checkbox>
-                        <mat-checkbox formControlName='a3' labelPosition='before'>Alert 3</mat-checkbox>
-                        <mat-checkbox formControlName='a4' labelPosition='before'>Alert 4</mat-checkbox>
-                    </p>
-                    <p style='color: red'>
-                        <mat-checkbox formControlName='a5' labelPosition='before'>Alert 5</mat-checkbox>
-                        <mat-checkbox formControlName='a6' labelPosition='before'>Alert 6</mat-checkbox>
-                        <mat-checkbox formControlName='a7' labelPosition='before'>Alert 7</mat-checkbox>
-                        <mat-checkbox formControlName='a8' labelPosition='before'>Alert 8</mat-checkbox>
-                    </p>
+                <div class="alertSection" [formGroup]='alertsFormGroup'>
+                    <div class="alertSubSection" style='color: green'>
+                        <div class="alert" *ngFor='let alert of alerts.long'>
+                            <mat-checkbox color='primary' [formControlName]='"bbol_" + alert' labelPosition='before'>
+                                {{ extractAlertNameByValue(alert) | titlecase}}
+                            </mat-checkbox>
+                            <mat-select
+                                placeholder='Alert Type'
+                                [formControlName]='alert'
+                                *ngIf='alertsFormGroup.value["bbol_" + alert]'
+                            >
+                                <mat-option value="CP">Close Position</mat-option>
+                                <mat-option value="OP">Open Position</mat-option>
+                                <mat-option value="COP">Close and Open</mat-option>
+                            </mat-select>
+                        </div>
+                    </div>
+                    <div class="alertSubSection" style='color: red'>
+                        <div class="alert" *ngFor='let alert of alerts.short'>
+                            <mat-checkbox  color='primary'  [formControlName]='"bbol_" + alert' labelPosition='before'>
+                                {{ extractAlertNameByValue(alert) | titlecase}}
+                            </mat-checkbox>
+                            <mat-select
+                                placeholder='Alert Type'
+                                [formControlName]='alert'
+                                *ngIf='alertsFormGroup.value["bbol_" + alert]'
+                            >
+                                <mat-option value="CP">Close Position</mat-option>
+                                <mat-option value="OP">Open Position</mat-option>
+                                <mat-option value="COP">Close and Open</mat-option>
+                            </mat-select>
+                        </div>
+                    </div>
                 </div>
             </div>
         </mat-card-content>
