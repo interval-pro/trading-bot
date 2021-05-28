@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { BotsService } from 'src/app/@core/services/bots.service';
+import { NewTradingBotDialog } from './new-bot-dialog/new-bot-dialog.component';
 
 @Component({
   selector: 'main-page',
@@ -11,6 +13,7 @@ export class MainPage implements OnInit {
 
   constructor(
     private botsService: BotsService,
+    private dialogService: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -19,11 +22,11 @@ export class MainPage implements OnInit {
 
   private _subscribeToBotsList() {
     this.botsService.$botsList.subscribe((botsList) => {
-      console.log(botsList);
       this.bots = botsList;
     });
   }
   
   addNew() {
+    this.dialogService.open(NewTradingBotDialog)
   }
 }

@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { SocketService } from 'src/app/@core/services/sockets.service';
 
 @Component({
   selector: 'bot-card',
@@ -9,7 +10,9 @@ export class BotCardComponent {
   @Input('bot') bot: any;
 
   private _isExpanded: boolean = false;
-  constructor() {}
+  constructor(
+    private socketService: SocketService,
+  ) {}
 
   get isExpanded() {
     return this._isExpanded;
@@ -24,5 +27,7 @@ export class BotCardComponent {
   }
   getLog() {}
   openSettings() {}
-  deleteBot() {}
+  deleteBot(id: number) {
+    this.socketService.socket.emit('removeBot', id);
+  }
 }

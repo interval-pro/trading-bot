@@ -1,45 +1,38 @@
-const botsList = [
-    {
-        id: 1,
-        txs: 23,
-        pnl: 12,
-        pair: 'LTCUSDT'
-      },
-      {
-        id: 2,
-        txs: 12,
-        pnl: -62,
-        pair: 'LTCUSDT'
-      },
-];
+import { myBotManager, IBot } from '../manager';
 
+var id = 0;
+const getId = () => {
+  id += 1;
+  return id;
+};
 
-const botsList2 = [
-    {
-        id: 1,
-        txs: 23,
-        pnl: 12,
-        pair: 'LTCUSDT'
-      },
-      {
-        id: 2,
-        txs: 12,
-        pnl: -62,
-        pair: 'LTCUSDT'
-      },
-      {
-        id: 2,
-        txs: 12,
-        pnl: -62,
-        pair: 'LTCUSDT'
-      },
-];
+export class Bot implements IBot {
+  id: number;
+  pair: string;
+  pnl: number = 0;
+  txs: number = 0;
+
+  constructor(botConfig: any) {
+    const { pair } = botConfig;
+    this.pair = pair;
+    this.id = getId();
+  }
+}
 
 export const handleSocketConnection = (socket: any) => {
     console.log(`New Connection: ${socket.id}`);
+    socket.emit('botsList', myBotManager.allBots)
 
-    setInterval(() => {
-        const list = Math.random() < 0.5 ? botsList : botsList2;
-        socket.emit('botsList', list)
-    }, 2000)
+    socket.on('addNewBot', (botConfig: any) => {
+      const newBot = new Bot(botConfig)
+      myBotManager.addBot(newBot, () => {
+        socket.emit('botsList', myBotManager.allBots);
+      })
+    })
+
+    socket.on('removeBot', (id: number) => {
+      myBotManager.removeBot(id, () => {
+        socket.emit('botsList', myBotManager.allBots);
+      })
+    })
 }

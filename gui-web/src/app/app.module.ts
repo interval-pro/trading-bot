@@ -10,6 +10,8 @@ import { PagesModule } from './@pages/pages.module';
 import { SharedModule } from './@shared/shared.modules';
 
 import {MatCardModule} from '@angular/material/card'; 
+import {MatDialogModule} from '@angular/material/dialog'; 
+import {MatButtonModule} from '@angular/material/button'; 
 
 const NG_MODULES = [
   BrowserModule,
@@ -25,6 +27,8 @@ const CUSTOM_MODULES = [
 
 const MATERIAL_MODULES = [
   MatCardModule,
+  MatDialogModule,
+  MatButtonModule,
 ];
 
 const imports = [
