@@ -2,10 +2,66 @@
     <mat-card>
         <mat-card-header><h1>Creating New Bot</h1></mat-card-header>
         <mat-card-content>
-            
+            <div class="content-condainer" [formGroup]='cbFb'>
+                <p>
+                    <mat-form-field>
+                        <mat-label>Pair: </mat-label>
+                        <mat-select formControlName='pair'>
+                            <mat-option value="ADAUSDT">ADA/USDT</mat-option>
+                            <mat-option value="LTCUSDT">LTC/USDT</mat-option>
+                            <mat-option value="BTCUSDT" disabled>BTC/USDT</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                      <mat-form-field>
+                        <mat-label>Start With: </mat-label>
+                        <input formControlName='initAmount' step='1' type="number" matInput>
+                      </mat-form-field>
+                </p>
+                <p>
+                    <mat-form-field>
+                        <mat-label>Trade Amount (n * equity) </mat-label>
+                        <input formControlName='percentForEachTrade' step='0.01' type="number" matInput>
+                      </mat-form-field>
+                      <mat-form-field>
+                        <mat-label>Leverage: </mat-label>
+                        <input formControlName='leverage' step='1' type="number" matInput>
+                      </mat-form-field>
+                </p>
+                <p>
+                    <mat-checkbox formControlName='isSl' #sl labelPosition='before'>Stop Loss: </mat-checkbox>
+                    <mat-form-field [ngClass]="{ invisible: !sl.checked }">
+                        <mat-label>n * equity</mat-label>
+                        <input formControlName='sl' step='1' type="number" matInput>
+                      </mat-form-field>
+                </p>
+                <p>
+                    <mat-checkbox formControlName='isTsl' #tsl labelPosition='before'>Trailing SL: </mat-checkbox>
+                    <mat-form-field [ngClass]="{ invisible: !tsl.checked }">
+                        <mat-label>n * equity</mat-label>
+                        <input formControlName='tsl' step='1' type="number" matInput>
+                      </mat-form-field>
+                </p>
+            </div>
         </mat-card-content>
         <mat-card-actions>
-            <button mat-raised-button color="primary" (click)="addBot()">Add new Bot</button>
+            <button mat-raised-button color="primary" (click)="addBot()" [disabled]='!cbFb.valid'>Add new Bot</button>
         </mat-card-actions>
     </mat-card>
 </div>
+
+<!-- pair: string,
+initAmount: number;
+percentForEachTrade: number;
+leverage: number;
+
+sl?: number;
+tsl?: number;
+
+<div class="option">
+    <span>Pair:</span>
+
+</div>
+<div class="option">
+    <span>Stop Loss:</span>
+
+</div> -->

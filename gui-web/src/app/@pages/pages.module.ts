@@ -2,22 +2,29 @@ import { NgModule } from '@angular/core';
 import { MainPage } from './main/main.page';
   
 
+import { NewTradingBotDialog } from './main/new-bot-dialog/new-bot-dialog.component';
+import { BotCardComponent } from './main/bot-card/bot-card.component';
 
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card'; 
 import { MatIconModule } from '@angular/material/icon'; 
-import { BotCardComponent } from './main/bot-card/bot-card.component';
-import { CommonModule } from '@angular/common';
-import { NewTradingBotDialog } from './main/new-bot-dialog/new-bot-dialog.component';
+import { MatInputModule } from '@angular/material/input'; 
+import { MatCheckboxModule } from '@angular/material/checkbox'; 
 
-
-import {MatButtonModule} from '@angular/material/button'; 
 @NgModule({
   imports: [
-    MatIconModule,
     CommonModule,
+    ReactiveFormsModule,
+    MatIconModule,
     MatCardModule,
     MatButtonModule,
+    MatSelectModule,
+    MatInputModule,
+    MatCheckboxModule,
   ],
   declarations: [
     MainPage,

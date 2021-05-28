@@ -2,5 +2,19 @@
     mat-card-content {
         min-width: 30rem;
         min-height: 30rem;
+        .content-condainer {
+            display: flex;
+            flex-direction: column;
+            p {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+
+            }
+        }
     }
+}
+
+.invisible {
+   visibility: hidden;
 }
