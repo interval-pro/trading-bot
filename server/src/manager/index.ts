@@ -6,6 +6,7 @@ export interface IBotConfig {
 
     sl?: number;
     tsl?: number;
+    alerts: { [key: string]: boolean }
 };
 
 var id = 0;
@@ -26,6 +27,8 @@ export class Bot implements IBotConfig {
 
   pnl: number = 0;
   txs: number = 0;
+  alerts: { [key: string]: boolean };
+
   constructor(botConfig: IBotConfig) {
     const {
         pair,
@@ -34,6 +37,7 @@ export class Bot implements IBotConfig {
         leverage,
         sl,
         tsl,
+        alerts,
     } = botConfig;
     this.id = getId();
 
@@ -41,6 +45,7 @@ export class Bot implements IBotConfig {
     this.initAmount = initAmount;
     this.percentForEachTrade = percentForEachTrade;
     this.leverage = leverage;
+    this.alerts = alerts,
     sl ? this.sl = sl : null;
     tsl ? this.tsl = tsl : null;
   }
@@ -56,6 +61,7 @@ class botsManager {
     addBot(config: IBotConfig, cb: () => void) {
         const newBot = new Bot(config)
         this._allBots.push(newBot)
+        console.log(newBot)
         cb();
     }
 

@@ -5,13 +5,23 @@
         .content-condainer {
             display: flex;
             flex-direction: column;
-            p {
+            .section {
+                margin: 1rem 0;
                 display: flex;
-                align-items: center;
-                justify-content: space-around;
-
+                flex-direction: column;
+                p {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-around;
+    
+                }
             }
         }
+    }
+    .buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
