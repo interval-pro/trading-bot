@@ -5,7 +5,8 @@ export interface IBotConfig {
     leverage: number;
 
     sl?: number;
-    tsl?: number;
+    tslAct?: number;
+    tslCBRate?: number;
     alerts: { [key: string]: boolean }
 };
 
@@ -23,7 +24,8 @@ export class Bot implements IBotConfig {
   leverage: number;
 
   sl: number;
-  tsl: number;
+  tslAct: number;
+  tslCBRate: number;
 
   pnl: number = 0;
   txs: number = 0;
@@ -37,7 +39,8 @@ export class Bot implements IBotConfig {
         percentForEachTrade,
         leverage,
         sl,
-        tsl,
+        tslAct,
+        tslCBRate,
         alerts,
     } = botConfig;
     this.id = getId();
@@ -50,7 +53,15 @@ export class Bot implements IBotConfig {
     this.leverage = leverage;
     this.alerts = alerts,
     sl ? this.sl = sl : null;
-    tsl ? this.tsl = tsl : null;
+  
+    if (tslAct && tslCBRate) {
+      this.tslAct = tslAct;
+      this.tslCBRate = tslCBRate;
+    }
+  }
+
+  handleAlert(alert: string) {
+    console.log(`Handle alert: ${alert}`);
   }
 }
 
@@ -78,3 +89,9 @@ class botsManager {
 
 
 export const myBotManager = new botsManager();
+
+export const handleAlerts = (alertNumber: number) => {
+  const alert = `a${alertNumber}`
+  const botsWithCurrentAlert = myBotManager.allBots.filter(bot => bot.alerts[alert] === true);
+  botsWithCurrentAlert.forEach(bot => bot.handleAlert(alert));
+}

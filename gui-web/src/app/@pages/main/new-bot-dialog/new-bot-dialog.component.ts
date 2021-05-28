@@ -31,6 +31,8 @@ export class NewTradingBotDialog implements OnInit {
       isTsl: [false],
       sl: [0.01],
       tsl: [0.01],
+      tslAct: [0.01],
+      tslCBRate: [0.01],
       a1: [false],
       a2: [false],
       a3: [false],
@@ -47,14 +49,15 @@ export class NewTradingBotDialog implements OnInit {
     const {
       pair, initAmount,
       percentForEachTrade, leverage,
-      isSl, isTsl, sl, tsl,
+      isSl, isTsl, sl, tslCBRate, tslAct,
     } = this.cbFb.value;
 
     const {a1,a2,a3,a4,a5,a6,a7,a8} = this.cbFb.value;
 
     const botConfig: any = { pair, initAmount, percentForEachTrade, leverage};
     botConfig.sl = isSl ? sl : null;
-    botConfig.tsl = isTsl ? tsl : null;
+    botConfig.tslCBRate = isTsl ? tslCBRate : null;
+    botConfig.tslAct = isTsl ? tslAct : null;
     botConfig.alerts = {a1,a2,a3,a4,a5,a6,a7,a8};
     console.log({botConfig})
     this.socketService.socket.emit('addNewBot', botConfig);

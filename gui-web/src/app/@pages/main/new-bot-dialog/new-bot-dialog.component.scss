@@ -13,7 +13,20 @@
                     display: flex;
                     align-items: center;
                     justify-content: space-around;
-    
+                    mat-form-field {
+                        width: 45%;
+                    }
+                }
+                .tsl {
+                    span {
+                        width: 45%;
+                        display: flex;
+                        justify-content: space-between;
+                        mat-form-field {
+                            width: 45%;
+                        }
+                    }
+
                 }
             }
         }
