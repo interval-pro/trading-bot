@@ -14,8 +14,8 @@ Rotues.configureRoutes(app);
 const SERVER_PORT = envConfig.PORT;
 const listernCB = () => console.log(`Server Started on port ${SERVER_PORT}`);
 
-const socket = new Server(3001, {
-    cors: {
+export const socket = new Server(3001, {
+   cors: {
         origin: "*",
         methods: ['GET', "POST"],
     }

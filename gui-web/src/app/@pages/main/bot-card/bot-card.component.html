@@ -13,8 +13,8 @@
             <div style="width: 25%">PNL: <span style='font-weight: 500;' [style.color]="bot.pnl < 0 ? 'red': 'green'">{{ numberToString(2, bot.pnl) }}</span></div>
         </div>
         <div class="actions">
-            <mat-icon (click)='getLog()'>receipt</mat-icon>
-            <mat-icon (click)='openSettings()'>settings</mat-icon>
+            <mat-icon (click)='getLog($event)'>receipt</mat-icon>
+            <mat-icon (click)='openSettings($event)'>settings</mat-icon>
         </div>
     </div>
     <div class="expanded">

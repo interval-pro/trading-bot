@@ -25,8 +25,19 @@ export class BotCardComponent {
   toggleExapnd() {
     this.isExpanded = !this.isExpanded;
   }
-  getLog() {}
-  openSettings() {}
+  
+  getLog(e: any) {
+    e.stopImmediatePropagation();
+    var myjson = JSON.stringify(this.bot.log, null, 2);
+    var x = window.open() as any;
+    x.document.open();
+    x.document.write('<html><body><pre>' + myjson + '</pre></body></html>');
+    x.document.close();
+  }
+  openSettings(e: any) {
+    e.stopImmediatePropagation();
+
+  }
   deleteBot(id: number) {
     this.socketService.socket.emit('removeBot', id);
   }

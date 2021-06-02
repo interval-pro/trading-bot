@@ -1,4 +1,5 @@
 import { myBotManager, IBotConfig } from '../manager';
+import { socket as mainSocket } from '../index';
 
 export const handleSocketConnection = (socket: any) => {
     console.log(`New Connection: ${socket.id}`);
@@ -6,13 +7,13 @@ export const handleSocketConnection = (socket: any) => {
 
     socket.on('addNewBot', (botConfig: IBotConfig) => {
       myBotManager.addBot(botConfig, () => {
-        socket.emit('botsList', myBotManager.allBots);
+        mainSocket.emit('botsList', myBotManager.allBots);
       })
     })
 
     socket.on('removeBot', (id: number) => {
       myBotManager.removeBot(id, () => {
-        socket.emit('botsList', myBotManager.allBots);
+        mainSocket.emit('botsList', myBotManager.allBots);
       })
     })
 }
