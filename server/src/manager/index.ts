@@ -180,9 +180,17 @@ export class Bot implements IBotConfig {
     }
   }
 
-  private changeTrend(alert: string) {
-    if (alert === 'green5') this.trend = 'up';
-    if (alert === 'red5') this.trend = 'down';
+  private async changeTrend(alert: string) {
+    if (alert === 'green5') {
+      await this.closePosition();
+      this.trend = 'up';
+      this.openPosition('LONG')
+    }
+    if (alert === 'red5') {
+      await this.closePosition();
+      this.trend = 'down'
+      this.openPosition('SHORT')
+    };
   }
 
   private async openPosition(type: PositionType) {
