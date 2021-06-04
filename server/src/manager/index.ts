@@ -134,9 +134,22 @@ export class Bot implements IBotConfig {
       this.tslAct = tslAct;
       this.tslCBRate = tslCBRate;
     }
+
+    const logData = {
+      id: this.id,
+      pair: this.pair,
+      initAmount: this.initAmount,
+      percentForEachTrade: this.percentForEachTrade,
+      leverage: this.leverage,
+    }
+
+    this.logData(LogType.SUCCESS, `Bot Started!`, logData);
+
   }
 
   async handleAlert(alert: string) {
+    this.logData(LogType.SUCCESS, `New Alert: ${alert}`);
+
     // const isLong = alert.startsWith('long');
     // const alertType: AlertType = this.alerts[alert] as AlertType;
     // const positionType: PositionType = isLong ? "LONG" : "SHORT";
@@ -154,7 +167,6 @@ export class Bot implements IBotConfig {
     //   await this.closePosition();
     //   await this.openPosition(positionType);
     // }
-    console.log(alert)
     if (alert.includes('5')) {
       this.changeTrend(alert);
       return;
