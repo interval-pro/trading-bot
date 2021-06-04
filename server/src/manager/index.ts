@@ -1,6 +1,8 @@
 import { binanceApi } from "../apis/binance-api.service";
 import { getDate, LogData, LogType } from '../utils';
 import { socket as mainSocket } from '../index';
+import { addLogRoute } from '../routes/log.route';
+import { Interface } from "readline";
 
 export interface IBotConfig {
     pair: string,
@@ -83,6 +85,7 @@ export class Position {
   }
 }
 
+export type TTrend = 'up' | 'down';
 export class Bot implements IBotConfig {
   id: number;
   pair: string;
@@ -104,6 +107,7 @@ export class Bot implements IBotConfig {
 
   log: any[] = [];
 
+  trend: TTrend;
   constructor(botConfig: IBotConfig) {
     const {
         pair,
@@ -133,23 +137,52 @@ export class Bot implements IBotConfig {
   }
 
   async handleAlert(alert: string) {
-    const isLong = alert.startsWith('long');
-    const alertType: AlertType = this.alerts[alert] as AlertType;
-    const positionType: PositionType = isLong ? "LONG" : "SHORT";
-    this.logData(LogType.WARNING, `New Alert: ${alert}`);
+    // const isLong = alert.startsWith('long');
+    // const alertType: AlertType = this.alerts[alert] as AlertType;
+    // const positionType: PositionType = isLong ? "LONG" : "SHORT";
+    // this.logData(LogType.WARNING, `New Alert: ${alert}`);
 
-    if (alertType === 'OP') {
-      await this.openPosition(positionType);
+    // if (alertType === 'OP') {
+    //   await this.openPosition(positionType);
+    // }
+
+    // if (alertType === 'CP') {
+    //   await this.closePosition();
+    // }
+
+    // if (alertType === 'COP') {
+    //   await this.closePosition();
+    //   await this.openPosition(positionType);
+    // }
+    console.log(alert)
+    if (alert.includes('5')) {
+      this.changeTrend(alert);
+      return;
     }
 
-    if (alertType === 'CP') {
-      await this.closePosition();
+    if (alert.includes('1')) {
+      this.handleBuySell(alert)
+      return;
+    }
+  }
+
+  private handleBuySell(alert: string) {
+    if (this.trend === 'up') {
+      alert === 'green1'
+        ? this.openPosition('LONG')
+        : this.closePosition();
     }
 
-    if (alertType === 'COP') {
-      await this.closePosition();
-      await this.openPosition(positionType);
+    if (this.trend === 'down') {
+      alert === 'red1'
+        ? this.openPosition('SHORT')
+        : this.closePosition();
     }
+  }
+
+  private changeTrend(alert: string) {
+    if (alert === 'green5') this.trend = 'up';
+    if (alert === 'red5') this.trend = 'down';
   }
 
   private async openPosition(type: PositionType) {
@@ -206,6 +239,8 @@ class botsManager {
         const newBot = new Bot(config)
         this._allBots.push(newBot)
         cb();
+        console.log(this._allBots)
+        addLogRoute(newBot.id);
     }
 
     removeBot(id: number, cb: () => void) {
@@ -220,6 +255,11 @@ class botsManager {
 export const myBotManager = new botsManager();
 
 export const handleAlerts = (alert: string) => {
-  const botsWithCurrentAlert = myBotManager.allBots.filter(bot => bot.alerts[alert]);
-  botsWithCurrentAlert.forEach(bot => bot.handleAlert(alert));
+  // const botsWithCurrentAlert = myBotManager.allBots.filter(bot => bot.alerts[alert]);
+  myBotManager.allBots.forEach(bot => bot.handleAlert(alert));
+}
+
+export const getBotLogById = (id: number) => {
+  const currentBot = myBotManager.allBots.find(bot => bot.id === id);
+  return currentBot.log;
 }

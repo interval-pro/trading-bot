@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { BotsService } from 'src/app/@core/services/bots.service';
 import { SocketService } from 'src/app/@core/services/sockets.service';
 
 @Component({
@@ -12,6 +13,7 @@ export class BotCardComponent {
   private _isExpanded: boolean = false;
   constructor(
     private socketService: SocketService,
+    private botsService: BotsService,
   ) {}
 
   get isExpanded() {
@@ -28,11 +30,8 @@ export class BotCardComponent {
   
   getLog(e: any) {
     e.stopImmediatePropagation();
-    var myjson = JSON.stringify(this.bot.log, null, 2);
-    var x = window.open() as any;
-    x.document.open();
-    x.document.write('<html><body><pre>' + myjson + '</pre></body></html>');
-    x.document.close();
+    const url = this.botsService.logUrl;
+    window.open(url + this.bot.id, "_blank");
   }
   openSettings(e: any) {
     e.stopImmediatePropagation();

@@ -29,7 +29,7 @@
                           </mat-form-field>
                     </p>
                 </div>
-                <div class="section" [formGroup]='cbFb'>
+                <!-- <div class="section" [formGroup]='cbFb'>
                     <p>
                         <mat-checkbox color='primary' formControlName='isSl' #sl labelPosition='before'>Stop Loss: </mat-checkbox>
                         <mat-form-field [ngClass]="{ invisible: !sl.checked }">
@@ -50,8 +50,8 @@
                             </mat-form-field>
                         </span>
                     </p>
-                </div>
-                <div class="alertSection" [formGroup]='alertsFormGroup'>
+                </div> -->
+                <!-- <div class="alertSection" [formGroup]='alertsFormGroup'>
                     <div class="alertSubSection" style='color: green'>
                         <div class="alert" *ngFor='let alert of alerts.long'>
                             <mat-checkbox color='primary' [formControlName]='"bbol_" + alert' labelPosition='before'>
@@ -84,7 +84,7 @@
                             </mat-select>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </mat-card-content>
         <div class="buttons">
