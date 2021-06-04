@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc --build",
     "build:watch": "tsc --build -w",
-    "start": "nodemon ./dist/index.js"
+    "start": "nodemon ./dist/index.js",
+    "start:prod": "node ./dist/index.js"
   },
   "author": "Valentin Peshev",
   "license": "ISC",
