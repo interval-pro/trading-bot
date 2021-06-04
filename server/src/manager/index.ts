@@ -193,12 +193,12 @@ export class Bot implements IBotConfig {
   }
 
   private async changeTrend(alert: string) {
-    if (alert === 'green5') {
+    if (alert === 'green5' && this.trend !== 'up') {
       await this.closePosition();
       this.trend = 'up';
       this.openPosition('LONG')
     }
-    if (alert === 'red5') {
+    if (alert === 'red5' && this.trend !== 'down') {
       await this.closePosition();
       this.trend = 'down'
       this.openPosition('SHORT')
@@ -209,12 +209,10 @@ export class Bot implements IBotConfig {
     if (this.openedPosition) return;
     const price = await this.getCurrentPrice();
     if (!price) return;
-    this._addOneTxs();
     const amount = this.equity >= this.initAmount
         ? this.percentForEachTrade * this.equity
         : this.percentForEachTrade * this.initAmount;
     this.openedPosition = new Position(type, amount, price, this.equity, this.leverage)
-    this.equity -= amount;
     this.logData(LogType.SUCCESS, `New ${type} Position opened!`);
   }
 
@@ -223,9 +221,13 @@ export class Bot implements IBotConfig {
     const price = await this.getCurrentPrice();
     if (!price) return;
     this.openedPosition.close(price);
-    this.equity += this.openedPosition.closeAmount;
+    this.equity += this.openedPosition.pnlAmount;
+    this.pnl = this.equity - this.initAmount;
     this.logData(LogType.SUCCESS, `Closed ${this.openedPosition.positionType} position!`, this.openedPosition);
     this.openedPosition = null;
+    this._addOneTxs();
+    mainSocket.emit('botsList', myBotManager.allBots);
+
   }
 
   private async getCurrentPrice(): Promise<number> {
@@ -244,7 +246,6 @@ export class Bot implements IBotConfig {
     const _log = new LogData(type, log, data);
     const logData = _log.save(`${this.pair}-${this.id}`);
     this.log.unshift(logData);
-    mainSocket.emit('botsList', myBotManager.allBots);
   }
 }
 

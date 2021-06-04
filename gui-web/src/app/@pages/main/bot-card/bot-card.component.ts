@@ -25,6 +25,7 @@ export class BotCardComponent {
   }
 
   toggleExapnd() {
+    console.log(this.bot)
     this.isExpanded = !this.isExpanded;
   }
   
