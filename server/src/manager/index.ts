@@ -2,7 +2,7 @@ import { binanceApi } from "../apis/binance-api.service";
 import { getDate, LogData, LogType } from '../utils';
 import { socket as mainSocket } from '../index';
 import { addLogRoute } from '../routes/log.route';
-import { Interface } from "readline";
+import { PriceSubscriber } from "./events";
 
 export interface IBotConfig {
     pair: string,
@@ -284,3 +284,8 @@ export const getBotLogById = (id: number) => {
   const currentBot = myBotManager.allBots.find(bot => bot.id === id);
   return currentBot.log;
 }
+
+const adaSubs = new PriceSubscriber('ADAUSDT');
+adaSubs.eventEmmiter.on('priceSubs', (data) => {
+  console.log(data);
+})

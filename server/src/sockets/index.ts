@@ -7,7 +7,6 @@ export const handleSocketConnection = (socket: any) => {
 
     socket.on('addNewBot', (botConfig: IBotConfig) => {
       myBotManager.addBot(botConfig, () => {
-        console.log(myBotManager)
         mainSocket.emit('botsList', myBotManager.allBots);
       })
     })

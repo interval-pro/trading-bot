@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon'; 
 import { MatInputModule } from '@angular/material/input'; 
 import { MatCheckboxModule } from '@angular/material/checkbox'; 
+import { ChartComponent } from './main/chart/chart.component';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MainPage,
     BotCardComponent,
     NewTradingBotDialog,
+    ChartComponent,
   ],
   providers: [],
 })
