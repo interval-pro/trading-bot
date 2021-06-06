@@ -7,22 +7,50 @@
     >
         <div class="info">
             <div style="width: 10%"># {{ bot.id }}</div>
-            <div  style="width: 20%; font-weight: 500; color: rgb(175, 0, 0)">{{ bot.pair }}</div>
-            <div style="width: 20%">TXS: {{ bot.txs }} (<span style='color: green'>{{getWinLoss(true)}}</span> / <span style="color:red">{{getWinLoss(false)}}</span>)</div>
-            <div style="width: 25%">Equity: {{ numberToString(2, bot.equity) }}</div>
+            <div style="width: 25%; font-weight: 500; color: rgb(175, 0, 0)">{{ bot.pair }}</div>
+            <div style="width: 30%">TXS: {{ bot.txs }} (<span style='color: green'>{{getWinLoss(true)}}</span> / <span style="color:red">{{getWinLoss(false)}}</span>)</div>
             <div style="width: 25%">PNL: <span style='font-weight: 500;' [style.color]="bot.pnl < 0 ? 'red': 'green'">{{ numberToString(2, bot.pnl) }}</span></div>
+            <div style="width: 10%"><span class='strategy'>{{ bot.strategy }}</span></div>
         </div>
         <div class="actions">
             <mat-icon (click)='getLog($event)'>receipt</mat-icon>
-            <mat-icon (click)='openSettings($event)'>settings</mat-icon>
+            <!-- <mat-icon (click)='openSettings($event)'>settings</mat-icon> -->
         </div>
     </div>
     <div class="expanded">
         <div class="expanded-content">
-            
+            <div class="sub-info">
+                    <span>Started With: {{bot.initAmount}}</span>
+                    <span>Equity: {{bot.equity.toFixed(4)}}</span>
+                    <span>Each Position Value: {{ bot.percentForEachTrade }}</span>
+                    <span>Opened Position: {{ bot.openedPosition ? "Yes" : "No" }}</span>
+            </div>
+            <div class="transactions-container" *ngIf='allTransactions.length;else noTransactionsSpan'>
+                <div class="transaction"
+                    *ngFor='let tx of allTransactions'
+                    [ngStyle]="{'background' : tx.win ? 'rgb(114, 189, 160)' : 'rgb(189, 114, 114)'}"
+                >
+                    <div class="time" style="width: 40%">
+                        <span class='open'>Open Time: {{ tx.openAt }}</span>
+                        <span class='close'>Close Time: {{ tx.closedAt }}</span>
+                    </div>
+                    <div class="price" style="width: 25%">
+                        <span class='open'>Opene Price: {{ tx.openPrice }}</span>
+                        <span class='close'>Close Price: {{ tx.closePrice }}</span>
+                    </div>
+                    <div class="result" style="width: 25%">
+                        <span class='open'>PNL: {{ tx.pnlAmount.toFixed(4) }}</span>
+                    </div>
+                    <div class="type" style="width: 10%">
+                        <span class='open'>{{ tx.positionType }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="footer">
             <mat-icon (click)='deleteBot(bot.id)'>delete</mat-icon> 
         </div>
     </div>
 </div>
+
+<ng-template #noTransactionsSpan><h1  style='width: 100%; text-align: center;'>No transactions</h1></ng-template>

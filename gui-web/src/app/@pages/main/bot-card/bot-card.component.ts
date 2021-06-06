@@ -24,9 +24,12 @@ export class BotCardComponent {
     this._isExpanded = value
   }
 
+  get allTransactions() {
+    return this.bot.log.filter((l: any) => l.positionType);
+  }
+
   toggleExapnd() {
     this.isExpanded = !this.isExpanded;
-    console.log()
   }
   
   getLog(e: any) {
@@ -47,9 +50,8 @@ export class BotCardComponent {
   }
 
   getWinLoss(isGetWin: boolean) {
-    const posLog = this.bot.log.filter((l: any) => l.positionType)
     return isGetWin
-      ? posLog.filter((l: any) => l.win === true).length
-      : posLog.filter((l: any) => l.win === false).length
+      ? this.allTransactions.filter((l: any) => l.win === true).length
+      : this.allTransactions.filter((l: any) => l.win === false).length
   }
 }

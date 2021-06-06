@@ -16,6 +16,7 @@ export class NewTradingBotDialog implements OnInit {
   };
 
   cbFb: FormGroup = new FormGroup({});
+  sFb:FormGroup = new FormGroup({});
   alertsFormGroup = new FormGroup({});
 
   constructor(
@@ -59,6 +60,10 @@ export class NewTradingBotDialog implements OnInit {
       short2: [null],
       short3: [null],
       short4: [null],
+    });
+
+    this.sFb = this.fb.group({
+      strategy: [null, [Validators.required]]
     })
   }
 
@@ -69,13 +74,14 @@ export class NewTradingBotDialog implements OnInit {
       isSl, isTsl, sl, tslCBRate, tslAct,
     } = this.cbFb.value;
 
-    const {a1,a2,a3,a4,a5,a6,a7,a8} = this.cbFb.value;
-
+    // const {a1,a2,a3,a4,a5,a6,a7,a8} = this.cbFb.value;
+    const { strategy } = this.sFb.value;
     const botConfig: any = { pair, initAmount, percentForEachTrade, leverage};
     botConfig.sl = isSl ? sl : null;
     botConfig.tslCBRate = isTsl ? tslCBRate : null;
     botConfig.tslAct = isTsl ? tslAct : null;
-    botConfig.alerts = this.extractActiveAlerts()
+    botConfig.strategy = strategy;
+    // botConfig.alerts = this.extractActiveAlerts()
     this.socketService.socket.emit('addNewBot', botConfig);
     this.dialogService.closeAll();
   }
@@ -87,6 +93,7 @@ export class NewTradingBotDialog implements OnInit {
       .forEach(a => alertsObj[a] = this.alertsFormGroup.value[a]);
     return alertsObj;
   }
+
   extractAlertNameByValue(value: string) {
     return `${value.slice(0, -1)}  ${value.substr(value.length - 1)}`
   }

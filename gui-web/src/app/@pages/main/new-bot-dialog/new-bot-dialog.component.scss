@@ -29,6 +29,11 @@
 
                 }
             }
+            .strategies {
+                mat-form-field {
+                    width: 100%;
+                }
+            }
             .alertSection {
                 display: flex;
                 justify-content: space-evenly;

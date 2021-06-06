@@ -14,7 +14,7 @@ export class ChartComponent implements OnInit {
   private createChart() {
     const TV = (window as any).TradingView;
     const chart = new TV.widget({
-      "height": 500,
+      "height": 350,
       "symbol": "BINANCE:ADAPERP",
       "interval": "15",
       "timezone": "Europe/Moscow",

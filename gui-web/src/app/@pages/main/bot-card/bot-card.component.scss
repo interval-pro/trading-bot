@@ -18,6 +18,10 @@
             display: flex;
             width: 95%;
             padding: 0 0.5rem;
+            .strategy {
+                color: teal;
+                font-weight: 500;
+            }
         }
         .actions {
             width: 10%;
@@ -40,6 +44,41 @@
         .expanded-content {
             height: 15rem;
             padding: 1rem;
+            .sub-info {
+                width: 100%;
+                height: 20%;
+                display: flex;
+                justify-content: space-around;
+            }
+
+            .transactions-container {
+                width: 100%;
+                height: 80%;
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+                box-shadow: 0 0 0.5rem 0.01rem;
+                .transaction {
+                    padding: 0.25rem 0.5rem;
+                    border: 1px solid black;
+                    border-bottom: none;
+                    display: flex;
+                    justify-content: space-between;
+                    &:last-child {
+                        border-bottom: 1px solid black
+                    }
+                    .time,
+                    .price,
+                    .type,
+                    .result {
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                }
+            }
         }
         .footer {
             position: relative;

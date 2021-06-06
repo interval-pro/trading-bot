@@ -9,11 +9,11 @@ export interface IBotConfig {
     initAmount: number;
     percentForEachTrade: number;
     leverage: number;
+    strategy: string;
 
     sl?: number;
     tslAct?: number;
     tslCBRate?: number;
-    alerts: { [key: string]: string }
 };
 
 var id = 0;
@@ -93,6 +93,8 @@ export class Bot implements IBotConfig {
   percentForEachTrade: number;
   leverage: number;
 
+  strategy: string;
+
   sl: number;
   tslAct: number;
   tslCBRate: number;
@@ -117,7 +119,7 @@ export class Bot implements IBotConfig {
         sl,
         tslAct,
         tslCBRate,
-        alerts,
+        strategy
     } = botConfig;
     this.id = getId();
 
@@ -127,7 +129,7 @@ export class Bot implements IBotConfig {
 
     this.percentForEachTrade = percentForEachTrade;
     this.leverage = leverage;
-    this.alerts = alerts,
+    this.strategy = strategy,
     sl ? this.sl = sl : null;
   
     if (tslAct && tslCBRate) {
@@ -141,6 +143,7 @@ export class Bot implements IBotConfig {
       initAmount: this.initAmount,
       percentForEachTrade: this.percentForEachTrade,
       leverage: this.leverage,
+      strategy: this.strategy,
     }
 
     this.logData(LogType.SUCCESS, `Bot Started!`, logData);
@@ -167,41 +170,52 @@ export class Bot implements IBotConfig {
     //   await this.closePosition();
     //   await this.openPosition(positionType);
     // }
-    if (alert.includes('5')) {
+    const alertMatchStrategy = this.checkMatchStrategy(alert);
+    console.log(`${this.strategy } - ${alertMatchStrategy}`)
+    if (!alertMatchStrategy) return;
+  
+    if (alert === 'green5' || alert === 'red5' || alert === 'green60' || alert === 'red60') {
       this.changeTrend(alert);
       return;
     }
 
-    if (alert.includes('1')) {
+    if (alert === 'green1' || alert === 'red1' || alert === 'green7' || alert === 'red7' || alert === 'green15' || alert === 'red15') {
       this.handleBuySell(alert)
       return;
     }
   }
 
+  private checkMatchStrategy(a: string) {
+    if (this.strategy === '1m-5m') return (a === 'green1' || a === 'red1'  || a === 'green5' || a === 'red5') ? true : false;
+    if (this.strategy === '1h-7m') return (a === 'green7' || a === 'red7' || a === 'green60' || a === 'red60') ? true : false;
+    if (this.strategy === '1h-15m') return (a === 'green15' || a === 'red15' || a === 'green60' || a === 'red60') ? true : false;
+    return false;
+  }
+
   private handleBuySell(alert: string) {
     if (this.trend === 'up') {
-      alert === 'green1'
+      alert.includes('green')
         ? this.openPosition('LONG')
         : this.closePosition();
     }
 
     if (this.trend === 'down') {
-      alert === 'red1'
+      alert.includes('red')
         ? this.openPosition('SHORT')
         : this.closePosition();
     }
   }
 
   private async changeTrend(alert: string) {
-    if (alert === 'green5' && this.trend !== 'up') {
+    if (alert.includes('green') && this.trend !== 'up') {
       await this.closePosition();
       this.trend = 'up';
-      this.openPosition('LONG')
+      this.openPosition('LONG');
     }
-    if (alert === 'red5' && this.trend !== 'down') {
+    if (alert.includes('red') && this.trend !== 'down') {
       await this.closePosition();
       this.trend = 'down'
-      this.openPosition('SHORT')
+      this.openPosition('SHORT');
     };
   }
 
@@ -260,7 +274,6 @@ class botsManager {
         const newBot = new Bot(config)
         this._allBots.push(newBot)
         cb();
-        console.log(this._allBots)
         addLogRoute(newBot.id);
     }
 
@@ -287,5 +300,5 @@ export const getBotLogById = (id: number) => {
 
 const adaSubs = new PriceSubscriber('ADAUSDT');
 adaSubs.eventEmmiter.on('priceSubs', (data) => {
-  console.log(data);
+  // console.log(data);
 })

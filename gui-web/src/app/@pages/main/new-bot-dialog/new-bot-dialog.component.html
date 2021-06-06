@@ -9,7 +9,7 @@
                             <mat-label>Pair: </mat-label>
                             <mat-select formControlName='pair'>
                                 <mat-option value="ADAUSDT">ADA/USDT</mat-option>
-                                <mat-option value="LTCUSDT">LTC/USDT</mat-option>
+                                <mat-option value="LTCUSDT" disabled>LTC/USDT</mat-option>
                                 <mat-option value="BTCUSDT" disabled>BTC/USDT</mat-option>
                             </mat-select>
                           </mat-form-field>
@@ -28,6 +28,17 @@
                             <input formControlName='leverage' step='1' type="number" matInput>
                           </mat-form-field>
                     </p>
+                </div>
+                <div class="strategies" [formGroup]='sFb'>
+                        <mat-form-field>
+                            <mat-label>Strategy: </mat-label>
+                            <mat-select formControlName='strategy'>
+                                <mat-option value='1m-5m'>1m-5m</mat-option>
+                                <mat-option value='1h-7m'>1h-7m</mat-option>
+                                <mat-option value='1h-15m'>1h-15m</mat-option>
+
+                            </mat-select>
+                          </mat-form-field>
                 </div>
                 <!-- <div class="section" [formGroup]='cbFb'>
                     <p>
@@ -88,7 +99,7 @@
             </div>
         </mat-card-content>
         <div class="buttons">
-            <button mat-raised-button color="primary" (click)="addBot()" [disabled]='!cbFb.valid'>Add new Bot</button>
+            <button mat-raised-button color="primary" (click)="addBot()" [disabled]='!cbFb.valid || !sFb.valid'>Add new Bot</button>
         </div>
     </mat-card>
 </div>
