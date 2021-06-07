@@ -7,10 +7,13 @@
     >
         <div class="info">
             <div style="width: 10%"># {{ bot.id }}</div>
-            <div style="width: 25%; font-weight: 500; color: rgb(175, 0, 0)">{{ bot.pair }}</div>
-            <div style="width: 30%">TXS: {{ bot.txs }} (<span style='color: green'>{{getWinLoss(true)}}</span> / <span style="color:red">{{getWinLoss(false)}}</span>)</div>
-            <div style="width: 25%">PNL: <span style='font-weight: 500;' [style.color]="bot.pnl < 0 ? 'red': 'green'">{{ numberToString(2, bot.pnl) }}</span></div>
+            <div style="width: 15%; font-weight: 500; color: rgb(175, 0, 0)">{{ bot.pair }}</div>
+            <div style="width: 17%; font-weight: 400;">Started: {{ bot.initAmount }}$</div>
+
+            <div style="width: 17%">TXS: {{ bot.txs }} (<span style='color: green'>{{getWinLoss(true)}}</span> / <span style="color:red">{{getWinLoss(false)}}</span>)</div>
+            <div style="width: 12%">PNL: <span style='font-weight: 500;' [style.color]="bot.pnl < 0 ? 'red': 'green'">{{ numberToString(2, bot.pnl) }}</span></div>
             <div style="width: 10%"><span class='strategy'>{{ bot.strategy }}</span></div>
+            <div style="width: 10%"><span style='font-weight: 500;' >Lev: x{{ bot.leverage }}</span></div>
         </div>
         <div class="actions">
             <mat-icon (click)='getLog($event)'>receipt</mat-icon>
@@ -20,10 +23,11 @@
     <div class="expanded">
         <div class="expanded-content">
             <div class="sub-info">
-                    <span>Started With: {{bot.initAmount}}</span>
                     <span>Equity: {{bot.equity.toFixed(4)}}</span>
                     <span>Each Position Value: {{ bot.percentForEachTrade }}</span>
-                    <span>Opened Position: {{ bot.openedPosition ? "Yes" : "No" }}</span>
+                    <span>YX: {{ bot.yxbd.yx || 'Unset' }}</span>
+                    <span>BD: {{ bot.yxbd.bd || 'Unset' }}</span>
+
             </div>
             <div class="transactions-container" *ngIf='allTransactions.length;else noTransactionsSpan'>
                 <div class="transaction"

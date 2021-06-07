@@ -34,6 +34,18 @@
                     width: 100%;
                 }
             }
+            .yxbd {
+                margin: 2rem 0;
+                .sub {
+                    display: flex;
+                    justify-content: space-between;
+                    height: 3rem;
+                    align-items: center;
+                    p {
+                        width: 100%
+                    }
+                }
+            }
             .alertSection {
                 display: flex;
                 justify-content: space-evenly;

@@ -15,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input'; 
 import { MatCheckboxModule } from '@angular/material/checkbox'; 
 import { ChartComponent } from './main/chart/chart.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   imports: [
@@ -26,6 +27,7 @@ import { ChartComponent } from './main/chart/chart.component';
     MatSelectModule,
     MatInputModule,
     MatCheckboxModule,
+    MatFormFieldModule,
   ],
   declarations: [
     MainPage,

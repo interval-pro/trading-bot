@@ -10,7 +10,10 @@ export interface IBotConfig {
     percentForEachTrade: number;
     leverage: number;
     strategy: string;
-
+    yxbd: {
+      yx: string | null,
+      bd: string | null,
+    };
     sl?: number;
     tslAct?: number;
     tslCBRate?: number;
@@ -110,6 +113,12 @@ export class Bot implements IBotConfig {
   log: any[] = [];
 
   trend: TTrend;
+
+  yxbd: {
+    yx: string | null,
+    bd: string | null,
+  };
+
   constructor(botConfig: IBotConfig) {
     const {
         pair,
@@ -119,7 +128,8 @@ export class Bot implements IBotConfig {
         sl,
         tslAct,
         tslCBRate,
-        strategy
+        strategy,
+        yxbd
     } = botConfig;
     this.id = getId();
 
@@ -132,6 +142,7 @@ export class Bot implements IBotConfig {
     this.strategy = strategy,
     sl ? this.sl = sl : null;
   
+    this.yxbd = yxbd;
     if (tslAct && tslCBRate) {
       this.tslAct = tslAct;
       this.tslCBRate = tslCBRate;
@@ -144,51 +155,90 @@ export class Bot implements IBotConfig {
       percentForEachTrade: this.percentForEachTrade,
       leverage: this.leverage,
       strategy: this.strategy,
+      yx: yxbd.yx,
+      bd: yxbd.bd
     }
 
     this.logData(LogType.SUCCESS, `Bot Started!`, logData);
 
   }
 
+  get yx() {
+    return this.yxbd.yx;
+  }
+
+  get bd() {
+    return this.yxbd.bd;
+  }
+
   async handleAlert(alert: string) {
     this.logData(LogType.SUCCESS, `New Alert: ${alert}`);
 
-    // const isLong = alert.startsWith('long');
-    // const alertType: AlertType = this.alerts[alert] as AlertType;
-    // const positionType: PositionType = isLong ? "LONG" : "SHORT";
-    // this.logData(LogType.WARNING, `New Alert: ${alert}`);
-
-    // if (alertType === 'OP') {
-    //   await this.openPosition(positionType);
-    // }
-
-    // if (alertType === 'CP') {
-    //   await this.closePosition();
-    // }
-
-    // if (alertType === 'COP') {
-    //   await this.closePosition();
-    //   await this.openPosition(positionType);
-    // }
     const alertMatchStrategy = this.checkMatchStrategy(alert);
-    console.log(`${this.strategy } - ${alertMatchStrategy}`)
     if (!alertMatchStrategy) return;
   
-    if (alert === 'green5' || alert === 'red5' || alert === 'green60' || alert === 'red60') {
-      this.changeTrend(alert);
-      return;
-    }
+    const changeTrendAlertsArray = ['green5', 'red5', 'green60', 'red60'];
+    if (changeTrendAlertsArray.includes(alert)) return this.changeTrend(alert);
 
-    if (alert === 'green1' || alert === 'red1' || alert === 'green7' || alert === 'red7' || alert === 'green15' || alert === 'red15') {
-      this.handleBuySell(alert)
-      return;
+    const handleBuySellAlerts = ['green1', 'red1', 'green7', 'red7', 'green15', 'red15'];
+    if (handleBuySellAlerts.includes(alert)) return this.handleBuySell(alert);
+
+    const yxAlerts = ['YX1', 'YX7' , 'YX15'];
+    if (yxAlerts.includes(alert)) return this.handleYX();
+
+    const bdAlerts = ['BD1', 'BD7' , 'BD15'];
+    if (bdAlerts.includes(alert)) return this.handleBD();
+  }
+
+  private async handleYX() {
+    if (!this.yx) return;
+    // if (this.yx === 'closeLong' && this.openedPosition?.positionType === 'LONG') {
+    //   this.closePosition();
+    //   return;
+    // } 
+    // if (this.yx === 'openShort') {
+    //   if (this.openedPosition?.positionType === 'LONG') {
+    //     await this.closePosition();
+    //   }
+    //   this.openPosition('SHORT')
+    // } 
+    if (this.trend === 'up' && this.openedPosition.positionType === 'LONG') {
+      await this.closePosition()
+    }
+    if (this.trend === 'down' && !this.openedPosition) {
+      await this.openPosition('SHORT');
+    }
+  }
+
+  private async handleBD() {
+    if (!this.bd) return;
+    // if (this.bd === 'closeLong' && this.openedPosition?.positionType === 'LONG') {
+    //   this.closePosition();
+    //   return;
+    // } 
+    // if (this.yx === 'openShort') {
+    //   if (this.openedPosition?.positionType === 'LONG') {
+    //     await this.closePosition();
+    //   }
+    //   this.openPosition('SHORT')
+    // } 
+
+    if (this.trend === 'up' && this.openedPosition.positionType === 'LONG') {
+      await this.closePosition()
+    }
+    if (this.trend === 'down' && !this.openedPosition) {
+      await this.openPosition('SHORT');
     }
   }
 
   private checkMatchStrategy(a: string) {
-    if (this.strategy === '1m-5m') return (a === 'green1' || a === 'red1'  || a === 'green5' || a === 'red5') ? true : false;
-    if (this.strategy === '1h-7m') return (a === 'green7' || a === 'red7' || a === 'green60' || a === 'red60') ? true : false;
-    if (this.strategy === '1h-15m') return (a === 'green15' || a === 'red15' || a === 'green60' || a === 'red60') ? true : false;
+    const alerts_1_5_array = ['green1', 'red1', 'green5', 'red5', 'YX1' , 'BD1'];
+    const alerts_60_7_array = ['green7', 'red7', 'green60', 'red60', 'YX7' , 'BD7'];
+    const alerts_60_15_array = ['green15', 'red15', 'green60', 'red60', 'YX15' , 'BD15'];
+
+    if (this.strategy === '1m-5m') return alerts_1_5_array.includes(a) ? true : false;
+    if (this.strategy === '1h-7m') return alerts_60_7_array .includes(a) ? true : false;
+    if (this.strategy === '1h-15m') return alerts_60_15_array.includes(a) ? true : false;
     return false;
   }
 
@@ -208,14 +258,10 @@ export class Bot implements IBotConfig {
 
   private async changeTrend(alert: string) {
     if (alert.includes('green') && this.trend !== 'up') {
-      await this.closePosition();
       this.trend = 'up';
-      this.openPosition('LONG');
     }
     if (alert.includes('red') && this.trend !== 'down') {
-      await this.closePosition();
       this.trend = 'down'
-      this.openPosition('SHORT');
     };
   }
 

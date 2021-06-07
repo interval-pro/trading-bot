@@ -17,7 +17,7 @@ export class NewTradingBotDialog implements OnInit {
 
   cbFb: FormGroup = new FormGroup({});
   sFb:FormGroup = new FormGroup({});
-  alertsFormGroup = new FormGroup({});
+  yxbdFb:FormGroup = new FormGroup({});
 
   constructor(
       private socketService: SocketService,
@@ -42,28 +42,17 @@ export class NewTradingBotDialog implements OnInit {
       tslAct: [0.01],
       tslCBRate: [0.01]
     });
-
-    this.alertsFormGroup = this.fb.group({
-      bbol_long1: [false],
-      bbol_long2: [false],
-      bbol_long3: [false],
-      bbol_long4: [false],
-      bbol_short1: [false],
-      bbol_short2: [false],
-      bbol_short3: [false],
-      bbol_short4: [false],
-      long1: [null],
-      long2: [null],
-      long3: [null],
-      long4: [null],
-      short1: [null],
-      short2: [null],
-      short3: [null],
-      short4: [null],
-    });
-
     this.sFb = this.fb.group({
       strategy: [null, [Validators.required]]
+    });
+
+    this.yxbdFb = this.fb.group({
+      yx: [false],
+      yxAction: ['openShort'],
+      yxTimeout: [3, [Validators.min(1), Validators.max(10)]],
+      bd: [false],
+      bdAction: ['openShort'],
+      bdTimeout: [3, [Validators.min(1), Validators.max(10)]],
     })
   }
 
@@ -74,24 +63,21 @@ export class NewTradingBotDialog implements OnInit {
       isSl, isTsl, sl, tslCBRate, tslAct,
     } = this.cbFb.value;
 
-    // const {a1,a2,a3,a4,a5,a6,a7,a8} = this.cbFb.value;
     const { strategy } = this.sFb.value;
     const botConfig: any = { pair, initAmount, percentForEachTrade, leverage};
     botConfig.sl = isSl ? sl : null;
     botConfig.tslCBRate = isTsl ? tslCBRate : null;
     botConfig.tslAct = isTsl ? tslAct : null;
     botConfig.strategy = strategy;
-    // botConfig.alerts = this.extractActiveAlerts()
+
+    const { yx, yxAction, yxTimeout, bd, bdAction, bdTimeout } = this.yxbdFb.value;
+
+    botConfig.yxbd = {
+      yx: !yx ? null : (yxAction === 'timeout' && yxTimeout) ? `timeout_${yxTimeout}` : yxAction,
+      bd: !bd ? null : (bdAction === 'timeout' && bdTimeout) ? `timeout_${bdTimeout}` : bdAction,
+    };
     this.socketService.socket.emit('addNewBot', botConfig);
     this.dialogService.closeAll();
-  }
-
-  extractActiveAlerts() {
-    const alertsObj: any = {};
-    Object.keys(this.alertsFormGroup.value)
-      .filter(a => typeof this.alertsFormGroup.value[a] === 'string')
-      .forEach(a => alertsObj[a] = this.alertsFormGroup.value[a]);
-    return alertsObj;
   }
 
   extractAlertNameByValue(value: string) {

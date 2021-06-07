@@ -36,9 +36,52 @@
                                 <mat-option value='1m-5m'>1m-5m</mat-option>
                                 <mat-option value='1h-7m'>1h-7m</mat-option>
                                 <mat-option value='1h-15m'>1h-15m</mat-option>
-
                             </mat-select>
                           </mat-form-field>
+                </div>
+                <div class="yxbd" [formGroup]='yxbdFb'>
+                    <div class='sub'>
+                        <p style='width: 15%'>
+                            <mat-checkbox formControlName='yx' labelPosition="before">YX: </mat-checkbox>
+                        </p>
+                        <p style='width: 40%'>
+                            <mat-form-field [ngStyle]='{"display" : yxbdFb.value.yx ? "inline-block" : "none" }'>
+                                <mat-label>YX Action: </mat-label>
+                                <mat-select formControlName='yxAction'>
+                                    <mat-option value='closeLong'>Close Long Position</mat-option>
+                                    <mat-option value='openShort'>Open Short Position</mat-option>
+                                    <mat-option value='timeout' disabled>Timeout</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </p>
+                        <p style='width: 45%'>
+                            <mat-form-field [ngStyle]='{"display" : yxbdFb.value.yx && yxbdFb.value.yxAction === "timeout" ? "inline-block" : "none" }'>
+                                <mat-label>Timeout (candles): </mat-label>
+                                <input formControlName='yxTimeout' step='1' type="number" matInput>
+                            </mat-form-field>
+                        </p>
+                    </div>
+                    <div class='sub'>
+                        <p style='width: 15%'>
+                            <mat-checkbox formControlName='bd' labelPosition="before">BD: </mat-checkbox>
+                        </p>
+                        <p style='width: 40%'>
+                            <mat-form-field [ngStyle]='{"display" : yxbdFb.value.bd ? "inline-block" : "none" }'>
+                                <mat-label>BD Action: </mat-label>
+                                <mat-select formControlName='bdAction'>
+                                    <mat-option value='closeLong'>Close Long Position</mat-option>
+                                    <mat-option value='openShort'>Open Short Position</mat-option>
+                                    <mat-option value='timeout' disabled>Timeout</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </p>
+                        <p style='width: 45%'>
+                            <mat-form-field [ngStyle]='{"display" : yxbdFb.value.bd && yxbdFb.value.bdAction === "timeout" ? "inline-block" : "none" }'>
+                                <mat-label>Timeout (candles): </mat-label>
+                                <input formControlName='bdTimeout' step='1' type="number" matInput>
+                            </mat-form-field>
+                        </p>
+                    </div>
                 </div>
                 <!-- <div class="section" [formGroup]='cbFb'>
                     <p>
