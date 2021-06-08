@@ -46,6 +46,11 @@
                     }
                 }
             }
+            .sltp {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+            }
             .alertSection {
                 display: flex;
                 justify-content: space-evenly;

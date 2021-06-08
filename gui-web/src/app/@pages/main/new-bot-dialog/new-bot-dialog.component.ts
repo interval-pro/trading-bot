@@ -16,8 +16,9 @@ export class NewTradingBotDialog implements OnInit {
   };
 
   cbFb: FormGroup = new FormGroup({});
-  sFb:FormGroup = new FormGroup({});
-  yxbdFb:FormGroup = new FormGroup({});
+  sFb: FormGroup = new FormGroup({});
+  yxbdFb: FormGroup = new FormGroup({});
+  sltpFB: FormGroup = new FormGroup({});
 
   constructor(
       private socketService: SocketService,
@@ -53,6 +54,11 @@ export class NewTradingBotDialog implements OnInit {
       bd: [false],
       bdAction: ['openShort'],
       bdTimeout: [3, [Validators.min(1), Validators.max(10)]],
+    });
+
+    this.sltpFB = this.fb.group({
+      sl: [0.01, [Validators.min(0.0001), Validators.max(0.1)]],
+      tp: [0.01, [Validators.min(0.0001), Validators.max(0.1)]],
     })
   }
 
@@ -60,12 +66,11 @@ export class NewTradingBotDialog implements OnInit {
     const {
       pair, initAmount,
       percentForEachTrade, leverage,
-      isSl, isTsl, sl, tslCBRate, tslAct,
+      isSl, isTsl, tslCBRate, tslAct,
     } = this.cbFb.value;
 
     const { strategy } = this.sFb.value;
     const botConfig: any = { pair, initAmount, percentForEachTrade, leverage};
-    botConfig.sl = isSl ? sl : null;
     botConfig.tslCBRate = isTsl ? tslCBRate : null;
     botConfig.tslAct = isTsl ? tslAct : null;
     botConfig.strategy = strategy;
@@ -76,6 +81,9 @@ export class NewTradingBotDialog implements OnInit {
       yx: !yx ? null : (yxAction === 'timeout' && yxTimeout) ? `timeout_${yxTimeout}` : yxAction,
       bd: !bd ? null : (bdAction === 'timeout' && bdTimeout) ? `timeout_${bdTimeout}` : bdAction,
     };
+
+    const { sl, tp } = this.sltpFB.value;
+    botConfig.sltp = {sl, tp};
     this.socketService.socket.emit('addNewBot', botConfig);
     this.dialogService.closeAll();
   }

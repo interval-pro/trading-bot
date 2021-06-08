@@ -62,7 +62,8 @@ class ProdInstance {
     const numberTokens = Math.round((balance * 10) / price);
 
     await this.reduceAll();
-    await this.binance.futuresMarketBuy('ADAUSDT', (numberTokens / 2))
+    console.log({numberTokens: (numberTokens / 2)})
+    // await this.binance.futuresMarketBuy('ADAUSDT', (numberTokens / 2))
   }
 
   async sell() {
@@ -71,7 +72,9 @@ class ProdInstance {
     const numberTokens = Math.round((balance * 10) / price);
 
     await this.reduceAll();
-    await this.binance.futuresMarketSell('ADAUSDT', (numberTokens / 2))
+    console.log({numberTokens: (numberTokens / 2)})
+
+    // await this.binance.futuresMarketSell('ADAUSDT', (numberTokens / 2))
   }
 
   async reduceAll() {
@@ -80,12 +83,14 @@ class ProdInstance {
     const maxTokens = Math.round((balance * 10) / price);
 
     const reduceAmount = maxTokens - 20;
-    await this.binance.futuresMarketSell('ADAUSDT', reduceAmount, { reduceOnly: true });
-    await this.binance.futuresMarketBuy('ADAUSDT', reduceAmount, { reduceOnly: true });
+    console.log({reduceAmount})
+    // await this.binance.futuresMarketSell('ADAUSDT', reduceAmount, { reduceOnly: true });
+    // await this.binance.futuresMarketBuy('ADAUSDT', reduceAmount, { reduceOnly: true });
   }
 } 
 
 const myBinance = new ProdInstance();
+
 export class Position {
   positionType: PositionType = null;
   leverage: number = null;
@@ -108,21 +113,12 @@ export class Position {
 
   win: boolean = null;
 
-  sltp: {
-    sl: number,
-    tp: number,
-  } = null;
-
   constructor(
     positionType: PositionType,
     amount: number,
     price: number,
     equity: number,
     leverage: number,
-    sltp: {
-      sl: number,
-      tp: number,
-    }
   ) {
     this.positionType = positionType;
 
@@ -135,10 +131,6 @@ export class Position {
     this.positionAmount = amount * leverage;
     this.tokens = this.positionAmount / price;
     this.borrowAmount = this.positionAmount - amount;
-    this.sltp = sltp;
-    if (this.sltp) {
-      this.openSLTPSubscriber();
-    }
   }
 
   close(price: number) {
@@ -155,10 +147,6 @@ export class Position {
     this.win = this.pnlAmount > 0;
     this.closeEquity = this.openEquity + this.pnlAmount;
   }
-
-  private openSLTPSubscriber() {
-    
-  }
 }
 
 export type TTrend = 'up' | 'down';
@@ -171,7 +159,6 @@ export class Bot implements IBotConfig {
 
   strategy: string;
 
-  sl: number;
   tslAct: number;
   tslCBRate: number;
 
@@ -199,23 +186,23 @@ export class Bot implements IBotConfig {
 
   prod: boolean = false;
 
+  listener: any;
   constructor(botConfig: IBotConfig) {
     const {
         pair,
         initAmount,
         percentForEachTrade,
         leverage,
-        sl,
-        tslAct,
-        tslCBRate,
         strategy,
         yxbd,
         sltp,
     } = botConfig;
     this.id = getId();
-    if (id === 1) {
-      this.prod = true;
-    }
+
+    // if (id === 1) {
+    //   this.prod = true;
+    // }
+
     this.pair = pair;
     this.initAmount = initAmount;
     this.equity = initAmount;
@@ -223,15 +210,11 @@ export class Bot implements IBotConfig {
     this.percentForEachTrade = percentForEachTrade;
     this.leverage = leverage;
     this.strategy = strategy,
-    sl ? this.sl = sl : null;
+    sltp ? this.sltp = sltp : null;
   
     this.yxbd = yxbd;
     this.sltp = sltp;
-    if (tslAct && tslCBRate) {
-      this.tslAct = tslAct;
-      this.tslCBRate = tslCBRate;
-    }
-
+  
     const logData = {
       id: this.id,
       pair: this.pair,
@@ -281,11 +264,11 @@ export class Bot implements IBotConfig {
 
   handleNewStrategy(alert: string) {
     if (alert === 'red1_peak_60' && !this.openedPosition) {
-      this.openPositionWithSLTP('SHORT');
+      this.openPosition('SHORT');
     } 
 
     if (alert === 'green1_bottom_60' && !this.openedPosition) {
-      this.openPositionWithSLTP('LONG');
+      this.openPosition('LONG');
     }
 
     if (alert === 'green1_peak_60' && this.openedPosition) {
@@ -297,22 +280,8 @@ export class Bot implements IBotConfig {
     }
   }
 
-  private openPositionWithSLTP(type: PositionType) {
-    this.openPosition(type)
-  }
-
   private async handleYX() {
     if (!this.yx) return;
-    // if (this.yx === 'closeLong' && this.openedPosition?.positionType === 'LONG') {
-    //   this.closePosition();
-    //   return;
-    // } 
-    // if (this.yx === 'openShort') {
-    //   if (this.openedPosition?.positionType === 'LONG') {
-    //     await this.closePosition();
-    //   }
-    //   this.openPosition('SHORT')
-    // } 
     if (this.trend === 'up' && this.openedPosition.positionType === 'LONG') {
       await this.closePosition()
     }
@@ -323,17 +292,6 @@ export class Bot implements IBotConfig {
 
   private async handleBD() {
     if (!this.bd) return;
-    // if (this.bd === 'closeLong' && this.openedPosition?.positionType === 'LONG') {
-    //   this.closePosition();
-    //   return;
-    // } 
-    // if (this.yx === 'openShort') {
-    //   if (this.openedPosition?.positionType === 'LONG') {
-    //     await this.closePosition();
-    //   }
-    //   this.openPosition('SHORT')
-    // } 
-
     if (this.trend === 'up' && this.openedPosition.positionType === 'LONG') {
       await this.closePosition()
     }
@@ -346,10 +304,12 @@ export class Bot implements IBotConfig {
     const alerts_1_5_array = ['green1', 'red1', 'green5', 'red5', 'YX1' , 'BD1'];
     const alerts_60_7_array = ['green7', 'red7', 'green60', 'red60', 'YX7' , 'BD7'];
     const alerts_60_15_array = ['green15', 'red15', 'green60', 'red60', 'YX15' , 'BD15'];
-
+    const alert_PEAK_BOTTOM_ARRAY = ['green1_peak_60', 'red1_peak_60', 'green1_bottom_60', 'red1_bottom_60'];
     if (this.strategy === '1m-5m') return alerts_1_5_array.includes(a) ? true : false;
-    if (this.strategy === '1h-7m') return alerts_60_7_array .includes(a) ? true : false;
+    if (this.strategy === '1h-7m') return alerts_60_7_array.includes(a) ? true : false;
     if (this.strategy === '1h-15m') return alerts_60_15_array.includes(a) ? true : false;
+    if (this.strategy === 'pb') return alert_PEAK_BOTTOM_ARRAY.includes(a) ? true : false;
+
     return false;
   }
 
@@ -388,7 +348,8 @@ export class Bot implements IBotConfig {
         ? this.percentForEachTrade * this.equity
         : this.percentForEachTrade * this.initAmount;
 
-    this.openedPosition = new Position(type, amount, price, this.equity, this.leverage, this.sltp)
+    this.openedPosition = new Position(type, amount, price, this.equity, this.leverage);
+    if (this.sltp.sl || this.sltp.tp) this.openSLTPSubscriber(type, price)
     this.logData(LogType.SUCCESS, `New ${type} Position opened!`);
   }
 
@@ -400,6 +361,7 @@ export class Bot implements IBotConfig {
     const price = await this.getCurrentPrice();
     if (!price) return;
     this.openedPosition.close(price);
+    adaSubs.eventEmmiter.removeListener('priceSubs', this.listener)
     this.equity += this.openedPosition.pnlAmount;
     this.pnl = this.equity - this.initAmount;
     this.logData(LogType.SUCCESS, `Closed ${this.openedPosition.positionType} position!`, this.openedPosition);
@@ -419,6 +381,32 @@ export class Bot implements IBotConfig {
 
   private _addOneTxs() {
     this.txs = this.txs + 1;
+  }
+
+  private openSLTPSubscriber(type: PositionType, price: number) {
+    const isLong: boolean = type === 'LONG';
+    this.listener = this.onPriceSubs(isLong, price).bind(this);
+    adaSubs.eventEmmiter.addListener('priceSubs', this.listener);
+  }
+
+  onPriceSubs(isLong: boolean, openPrice: number) {
+    return (data: any) => {
+      const slPrice = isLong
+        ? openPrice - (openPrice * this.sltp.sl)
+        : openPrice + (openPrice * this.sltp.sl);
+  
+      const tpPrice = isLong
+        ? openPrice + (openPrice * this.sltp.tp)
+        : openPrice - (openPrice * this.sltp.tp);
+  
+      const { lastPrice } = data;
+      console.log({lastPrice, tpPrice, slPrice})
+      if (isLong) {
+        if (lastPrice < slPrice || lastPrice > tpPrice) this.closePosition();
+      } else {
+        if (lastPrice > slPrice || lastPrice < tpPrice) this.closePosition();
+      }
+    }
   }
 
   private logData(type: string, log: string, data: any = {}) {
@@ -464,5 +452,3 @@ export const getBotLogById = (id: number) => {
 }
 
 const adaSubs = new PriceSubscriber('ADAUSDT');
-adaSubs.eventEmmiter.on('priceSubs', (data) => {
-})

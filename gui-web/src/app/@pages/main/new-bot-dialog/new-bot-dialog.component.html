@@ -36,9 +36,21 @@
                                 <mat-option value='1m-5m'>1m-5m</mat-option>
                                 <mat-option value='1h-7m'>1h-7m</mat-option>
                                 <mat-option value='1h-15m'>1h-15m</mat-option>
+                                <mat-option value='pb'>Peak & Bottom</mat-option>
+
                             </mat-select>
                           </mat-form-field>
                 </div>
+                <div class="sltp" [formGroup]='sltpFB' *ngIf='sFb.value.strategy === "pb"'>
+                    <mat-form-field>
+                        <mat-label>Stop Loss</mat-label>
+                        <input formControlName='sl' step='0.001' type="number" matInput>
+                      </mat-form-field>
+                      <mat-form-field>
+                        <mat-label>Take Profit</mat-label>
+                        <input formControlName='tp' step='0.001' type="number" matInput>
+                      </mat-form-field>
+            </div>
                 <div class="yxbd" [formGroup]='yxbdFb'>
                     <div class='sub'>
                         <p style='width: 15%'>
