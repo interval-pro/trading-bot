@@ -241,8 +241,8 @@ export class Bot implements IBotConfig {
       strategy: this.strategy,
       yx: yxbd.yx,
       bd: yxbd.bd,
-      sl: sltp.sl,
-      tp: sltp.tp,
+      sl: sltp?.sl,
+      tp: sltp?.tp,
     }
 
     this.logData(LogType.SUCCESS, `Bot Started!`, logData);
