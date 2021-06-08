@@ -3,7 +3,8 @@ import { getDate, LogData, LogType } from '../utils';
 import { socket as mainSocket } from '../index';
 import { addLogRoute } from '../routes/log.route';
 import { PriceSubscriber } from "./events";
-
+import { envConfig } from '../config'
+import * as Binance from 'node-binance-api'
 export interface IBotConfig {
     pair: string,
     initAmount: number;
@@ -14,6 +15,11 @@ export interface IBotConfig {
       yx: string | null,
       bd: string | null,
     };
+
+    sltp?: {
+      sl: number,
+      tp: number,
+    },
     sl?: number;
     tslAct?: number;
     tslCBRate?: number;
@@ -28,8 +34,58 @@ const getId = () => {
 export type PositionType = "SHORT" | "LONG";
 export type AlertType = "OP" | "CP" | "COP";
 
+class ProdInstance {
+  private binance: Binance;
 
+  constructor() {
+    this.binance = new Binance().options({
+      APIKEY: envConfig.BINANCE_API_KEY,
+      APISECRET: envConfig.BINANCE_API_SECRET,
+    });
+  }
 
+  async getBalance() {
+    const res = await this.binance.futuresBalance();
+    const myBalance = res.find((balObj: any) => balObj.asset === 'USDT').balance;
+    return parseFloat(myBalance);
+  }
+
+  async getADAprice() {
+    const allMarketsPrices = await this.binance.futuresPrices();
+    const adaPrice = allMarketsPrices.ADAUSDT;
+    return parseFloat(adaPrice)
+  }
+
+  async buy() {
+    const balance = await this.getBalance();
+    const price = await this.getADAprice();
+    const numberTokens = Math.round((balance * 10) / price);
+
+    await this.reduceAll();
+    await this.binance.futuresMarketBuy('ADAUSDT', (numberTokens / 2))
+  }
+
+  async sell() {
+    const balance = await this.getBalance();
+    const price = await this.getADAprice();
+    const numberTokens = Math.round((balance * 10) / price);
+
+    await this.reduceAll();
+    await this.binance.futuresMarketSell('ADAUSDT', (numberTokens / 2))
+  }
+
+  async reduceAll() {
+    const balance = await this.getBalance();
+    const price = await this.getADAprice();
+    const maxTokens = Math.round((balance * 10) / price);
+
+    const reduceAmount = maxTokens - 20;
+    await this.binance.futuresMarketSell('ADAUSDT', reduceAmount, { reduceOnly: true });
+    await this.binance.futuresMarketBuy('ADAUSDT', reduceAmount, { reduceOnly: true });
+  }
+} 
+
+const myBinance = new ProdInstance();
 export class Position {
   positionType: PositionType = null;
   leverage: number = null;
@@ -52,12 +108,21 @@ export class Position {
 
   win: boolean = null;
 
+  sltp: {
+    sl: number,
+    tp: number,
+  } = null;
+
   constructor(
     positionType: PositionType,
     amount: number,
     price: number,
     equity: number,
     leverage: number,
+    sltp: {
+      sl: number,
+      tp: number,
+    }
   ) {
     this.positionType = positionType;
 
@@ -70,6 +135,10 @@ export class Position {
     this.positionAmount = amount * leverage;
     this.tokens = this.positionAmount / price;
     this.borrowAmount = this.positionAmount - amount;
+    this.sltp = sltp;
+    if (this.sltp) {
+      this.openSLTPSubscriber();
+    }
   }
 
   close(price: number) {
@@ -85,6 +154,10 @@ export class Position {
 
     this.win = this.pnlAmount > 0;
     this.closeEquity = this.openEquity + this.pnlAmount;
+  }
+
+  private openSLTPSubscriber() {
+    
   }
 }
 
@@ -119,6 +192,13 @@ export class Bot implements IBotConfig {
     bd: string | null,
   };
 
+  sltp: {
+    sl: number | null,
+    tp: number | null,
+  };
+
+  prod: boolean = false;
+
   constructor(botConfig: IBotConfig) {
     const {
         pair,
@@ -129,10 +209,13 @@ export class Bot implements IBotConfig {
         tslAct,
         tslCBRate,
         strategy,
-        yxbd
+        yxbd,
+        sltp,
     } = botConfig;
     this.id = getId();
-
+    if (id === 1) {
+      this.prod = true;
+    }
     this.pair = pair;
     this.initAmount = initAmount;
     this.equity = initAmount;
@@ -143,6 +226,7 @@ export class Bot implements IBotConfig {
     sl ? this.sl = sl : null;
   
     this.yxbd = yxbd;
+    this.sltp = sltp;
     if (tslAct && tslCBRate) {
       this.tslAct = tslAct;
       this.tslCBRate = tslCBRate;
@@ -156,7 +240,9 @@ export class Bot implements IBotConfig {
       leverage: this.leverage,
       strategy: this.strategy,
       yx: yxbd.yx,
-      bd: yxbd.bd
+      bd: yxbd.bd,
+      sl: sltp.sl,
+      tp: sltp.tp,
     }
 
     this.logData(LogType.SUCCESS, `Bot Started!`, logData);
@@ -172,11 +258,10 @@ export class Bot implements IBotConfig {
   }
 
   async handleAlert(alert: string) {
-    this.logData(LogType.SUCCESS, `New Alert: ${alert}`);
-
     const alertMatchStrategy = this.checkMatchStrategy(alert);
     if (!alertMatchStrategy) return;
-  
+    this.logData(LogType.SUCCESS, `New Alert: ${alert}`);
+
     const changeTrendAlertsArray = ['green5', 'red5', 'green60', 'red60'];
     if (changeTrendAlertsArray.includes(alert)) return this.changeTrend(alert);
 
@@ -188,6 +273,32 @@ export class Bot implements IBotConfig {
 
     const bdAlerts = ['BD1', 'BD7' , 'BD15'];
     if (bdAlerts.includes(alert)) return this.handleBD();
+
+    const newStrategyAlerts = ['green1_peak_60', 'red1_peak_60', 'green1_bottom_60', 'red1_bottom_60'];
+    if (newStrategyAlerts.includes(alert)) return this.handleNewStrategy(alert);
+
+  }
+
+  handleNewStrategy(alert: string) {
+    if (alert === 'red1_peak_60' && !this.openedPosition) {
+      this.openPositionWithSLTP('SHORT');
+    } 
+
+    if (alert === 'green1_bottom_60' && !this.openedPosition) {
+      this.openPositionWithSLTP('LONG');
+    }
+
+    if (alert === 'green1_peak_60' && this.openedPosition) {
+      this.closePosition();
+    }
+
+    if (alert === 'red1_bottom_60' && this.openedPosition) {
+      this.closePosition();
+    }
+  }
+
+  private openPositionWithSLTP(type: PositionType) {
+    this.openPosition(type)
   }
 
   private async handleYX() {
@@ -267,17 +378,25 @@ export class Bot implements IBotConfig {
 
   private async openPosition(type: PositionType) {
     if (this.openedPosition) return;
+    if (this.prod) {
+      if (type === 'LONG') myBinance.buy();
+      if (type === 'SHORT') myBinance.sell();
+    }
     const price = await this.getCurrentPrice();
     if (!price) return;
     const amount = this.equity >= this.initAmount
         ? this.percentForEachTrade * this.equity
         : this.percentForEachTrade * this.initAmount;
-    this.openedPosition = new Position(type, amount, price, this.equity, this.leverage)
+
+    this.openedPosition = new Position(type, amount, price, this.equity, this.leverage, this.sltp)
     this.logData(LogType.SUCCESS, `New ${type} Position opened!`);
   }
 
   private async closePosition() {
     if (!this.openedPosition) return;
+    if (this.prod) {
+      myBinance.reduceAll();
+    }
     const price = await this.getCurrentPrice();
     if (!price) return;
     this.openedPosition.close(price);
@@ -346,5 +465,4 @@ export const getBotLogById = (id: number) => {
 
 const adaSubs = new PriceSubscriber('ADAUSDT');
 adaSubs.eventEmmiter.on('priceSubs', (data) => {
-  // console.log(data);
 })
