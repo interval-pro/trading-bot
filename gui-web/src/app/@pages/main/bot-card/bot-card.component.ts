@@ -10,6 +10,7 @@ import { SocketService } from 'src/app/@core/services/sockets.service';
 export class BotCardComponent {
   @Input('bot') bot: any;
 
+  defaultTxConainerHeight: string = '12rem'
   private _isExpanded: boolean = false;
   constructor(
     private socketService: SocketService,

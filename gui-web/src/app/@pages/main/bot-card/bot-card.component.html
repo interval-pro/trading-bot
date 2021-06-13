@@ -1,6 +1,6 @@
 <div 
     class="bot-card-container" 
-    [ngStyle]="{height: isExpanded ? '21rem' : '3rem'}"
+    [ngStyle]="{ maxHeight: isExpanded ? 'unset' : '3rem', minHeight: isExpanded ? '21rem' : '3rem' }"
 >
     <div class="head"
     (click)='toggleExapnd()'
@@ -29,7 +29,10 @@
                     <span>BD: {{ bot.yxbd.bd || 'Unset' }}</span>
 
             </div>
-            <div class="transactions-container" *ngIf='allTransactions.length;else noTransactionsSpan'>
+            <div class="transactions-container" 
+                *ngIf='allTransactions.length;else noTransactionsSpan'     
+                [style.height]='defaultTxConainerHeight'
+            >
                 <div class="transaction"
                     *ngFor='let tx of allTransactions'
                     [ngStyle]="{'background' : tx.win ? 'rgb(114, 189, 160)' : 'rgb(189, 114, 114)'}"
