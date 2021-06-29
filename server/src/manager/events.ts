@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import * as WebSocket from "ws";
 
-export class PriceSubscriber {
+class PriceSubscriber {
     private pair: string;
     private em: EventEmitter;
     private ws: WebSocket;
@@ -49,3 +49,5 @@ export class PriceSubscriber {
         return filteredData;
     }
 }
+
+export const adaSubs = new PriceSubscriber('ADAUSDT');

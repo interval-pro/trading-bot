@@ -1,4 +1,5 @@
-import { myBotManager, IBotConfig } from '../manager';
+import { myBotManager } from '../manager/manager';
+import { IBotConfig  } from '../manager/bot';
 import { socket as mainSocket } from '../index';
 
 export const handleSocketConnection = (socket: any) => {

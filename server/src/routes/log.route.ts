@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getBotLogById } from '../manager'
+import { getBotLogById } from '../manager/manager'
 export const log = Router();
 
 export const addLogRoute = (id: number) => {
