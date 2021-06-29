@@ -95,66 +95,21 @@
                         </p>
                     </div>
                 </div>
-                <!-- <div class="section" [formGroup]='cbFb'>
-                    <p>
-                        <mat-checkbox color='primary' formControlName='isSl' #sl labelPosition='before'>Stop Loss: </mat-checkbox>
-                        <mat-form-field [ngClass]="{ invisible: !sl.checked }">
-                            <mat-label>n * equity</mat-label>
-                            <input formControlName='sl' step='1' type="number" matInput>
-                          </mat-form-field>
+                <div class="hist">
+                    <p style='width: 15%; margin-right: 2rem;'>
+                        <mat-checkbox #isHist labelPosition="before">Historical: </mat-checkbox>
                     </p>
-                    <p class='tsl'>
-                        <mat-checkbox color='primary' formControlName='isTsl' #tsl labelPosition='before'>Trailing SL: </mat-checkbox>
-                        <span>
-                            <mat-form-field [ngClass]="{ invisible: !tsl.checked }">
-                                <mat-label>Act.rate (n * equity)</mat-label>
-                                <input formControlName='tslAct' step='0.01' type="number" matInput>
-                            </mat-form-field>
-                            <mat-form-field [ngClass]="{ invisible: !tsl.checked }">
-                                <mat-label>Callback Rate</mat-label>
-                                <input formControlName='tslCBRate' step='0.01' type="number" matInput>
-                            </mat-form-field>
-                        </span>
+                    <p style='width: 45%'>
+                        <button [ngStyle]='{visibility: isHist.checked ? "visible" : "hidden"}' mat-mini-fab (click)="fileInput.click()">
+                            <mat-icon>upload</mat-icon>
+                        </button>
+                        <input hidden (change)='handleFileInputChange($event)' #fileInput type="file" id="file">
                     </p>
-                </div> -->
-                <!-- <div class="alertSection" [formGroup]='alertsFormGroup'>
-                    <div class="alertSubSection" style='color: green'>
-                        <div class="alert" *ngFor='let alert of alerts.long'>
-                            <mat-checkbox color='primary' [formControlName]='"bbol_" + alert' labelPosition='before'>
-                                {{ extractAlertNameByValue(alert) | titlecase}}
-                            </mat-checkbox>
-                            <mat-select
-                                placeholder='Alert Type'
-                                [formControlName]='alert'
-                                *ngIf='alertsFormGroup.value["bbol_" + alert]'
-                            >
-                                <mat-option value="CP">Close Position</mat-option>
-                                <mat-option value="OP">Open Position</mat-option>
-                                <mat-option value="COP">Close and Open</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
-                    <div class="alertSubSection" style='color: red'>
-                        <div class="alert" *ngFor='let alert of alerts.short'>
-                            <mat-checkbox  color='primary'  [formControlName]='"bbol_" + alert' labelPosition='before'>
-                                {{ extractAlertNameByValue(alert) | titlecase}}
-                            </mat-checkbox>
-                            <mat-select
-                                placeholder='Alert Type'
-                                [formControlName]='alert'
-                                *ngIf='alertsFormGroup.value["bbol_" + alert]'
-                            >
-                                <mat-option value="CP">Close Position</mat-option>
-                                <mat-option value="OP">Open Position</mat-option>
-                                <mat-option value="COP">Close and Open</mat-option>
-                            </mat-select>
-                        </div>
-                    </div>
-                </div> -->
+                </div>
             </div>
         </mat-card-content>
         <div class="buttons">
-            <button mat-raised-button color="primary" (click)="addBot()" [disabled]='!cbFb.valid || !sFb.valid'>Add new Bot</button>
+            <button mat-raised-button color="primary" (click)="addBot()" [disabled]='!cbFb.valid || !sFb.valid || (isHist.checked && !histFileData)'>Add new Bot</button>
         </div>
     </mat-card>
 </div>

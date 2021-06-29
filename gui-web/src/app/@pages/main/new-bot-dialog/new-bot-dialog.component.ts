@@ -20,6 +20,7 @@ export class NewTradingBotDialog implements OnInit {
   yxbdFb: FormGroup = new FormGroup({});
   sltpFB: FormGroup = new FormGroup({});
 
+  histFileData: any = null;
   constructor(
       private socketService: SocketService,
       private dialogService: MatDialog,
@@ -62,6 +63,15 @@ export class NewTradingBotDialog implements OnInit {
     })
   }
 
+  handleFileInputChange(event: any) {
+    const file = event.target.files[0];
+    let fileReader = new FileReader();
+    fileReader.onload = () => {
+      this.histFileData = fileReader.result;
+    }
+    fileReader.readAsText(file);
+  }
+
   addBot() {
     const {
       pair, initAmount,
@@ -83,7 +93,11 @@ export class NewTradingBotDialog implements OnInit {
     };
 
     const { sl, tp } = this.sltpFB.value;
-    botConfig.sltp = {sl, tp};
+    botConfig.sltp = {
+      sl: strategy === "pb" ? sl : null,
+      tp: strategy === "pb" ? tp : null,
+    };
+    botConfig.histData = this.histFileData || null;
     this.socketService.socket.emit('addNewBot', botConfig);
     this.dialogService.closeAll();
   }

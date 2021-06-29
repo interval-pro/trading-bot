@@ -1,5 +1,5 @@
 import { binanceApi } from "../apis/binance-api.service";
-import { getDate, LogData, LogType } from '../utils';
+import { getDate, LogData, LogType, convertCSVtoJSON } from '../utils';
 import { socket as mainSocket } from '../index';
 import { addLogRoute } from '../routes/log.route';
 import { PriceSubscriber } from "./events";
@@ -23,6 +23,7 @@ export interface IBotConfig {
     sl?: number;
     tslAct?: number;
     tslCBRate?: number;
+    histData?: string;
 };
 
 var id = 0;
@@ -119,10 +120,11 @@ export class Position {
     price: number,
     equity: number,
     leverage: number,
+    time: string = null,
   ) {
     this.positionType = positionType;
 
-    this.openAt = getDate();
+    this.openAt = getDate(time);
     this.openPrice = price;
     this.openAmount = amount;
     this.openEquity = equity;
@@ -133,9 +135,9 @@ export class Position {
     this.borrowAmount = this.positionAmount - amount;
   }
 
-  close(price: number) {
+  close(price: number, time: string = null) {
     const isLong = this.positionType === 'LONG';
-    this.closedAt = getDate();
+    this.closedAt = getDate(time);
     this.closePrice = price;
     this.closeAmount = isLong
         ? ((this.tokens * price) - this.positionAmount) + this.openAmount
@@ -187,6 +189,7 @@ export class Bot implements IBotConfig {
   prod: boolean = false;
 
   listener: any;
+  histRawData: string;
   constructor(botConfig: IBotConfig) {
     const {
         pair,
@@ -196,6 +199,7 @@ export class Bot implements IBotConfig {
         strategy,
         yxbd,
         sltp,
+        histData,
     } = botConfig;
     this.id = getId();
 
@@ -214,7 +218,8 @@ export class Bot implements IBotConfig {
   
     this.yxbd = yxbd;
     this.sltp = sltp;
-  
+    this.histRawData = histData;
+
     const logData = {
       id: this.id,
       pair: this.pair,
@@ -226,10 +231,14 @@ export class Bot implements IBotConfig {
       bd: yxbd.bd,
       sl: sltp?.sl,
       tp: sltp?.tp,
+      isHist: histData ? true : false,
     }
 
     this.logData(LogType.SUCCESS, `Bot Started!`, logData);
 
+    if (this.histRawData) {
+      this.processHistData()
+    }
   }
 
   get yx() {
@@ -336,32 +345,32 @@ export class Bot implements IBotConfig {
     };
   }
 
-  private async openPosition(type: PositionType) {
+  private async openPosition(type: PositionType, _price: number = null, time: string = null) {
     if (this.openedPosition) return;
     if (this.prod) {
       if (type === 'LONG') myBinance.buy();
       if (type === 'SHORT') myBinance.sell();
     }
-    const price = await this.getCurrentPrice();
+    const price = _price ? _price :  await this.getCurrentPrice();
     if (!price) return;
     const amount = this.equity >= this.initAmount
         ? this.percentForEachTrade * this.equity
         : this.percentForEachTrade * this.initAmount;
 
-    this.openedPosition = new Position(type, amount, price, this.equity, this.leverage);
+    this.openedPosition = new Position(type, amount, price, this.equity, this.leverage, time);
     if (this.sltp.sl || this.sltp.tp) this.openSLTPSubscriber(type, price)
     this.logData(LogType.SUCCESS, `New ${type} Position opened!`);
   }
 
-  private async closePosition() {
+  private async closePosition(_price: number = null, time: string = null) {
     if (!this.openedPosition) return;
     if (this.prod) {
       myBinance.reduceAll();
     }
-    const price = await this.getCurrentPrice();
+    const price = _price ? _price :  await this.getCurrentPrice();
     if (!price) return;
-    this.openedPosition.close(price);
-    adaSubs.eventEmmiter.removeListener('priceSubs', this.listener)
+    this.openedPosition.close(price, time);
+    // adaSubs.eventEmmiter.removeListener('priceSubs', this.listener)
     this.equity += this.openedPosition.pnlAmount;
     this.pnl = this.equity - this.initAmount;
     this.logData(LogType.SUCCESS, `Closed ${this.openedPosition.positionType} position!`, this.openedPosition);
@@ -400,7 +409,6 @@ export class Bot implements IBotConfig {
         : openPrice - (openPrice * this.sltp.tp);
   
       const { lastPrice } = data;
-      console.log({lastPrice, tpPrice, slPrice})
       if (isLong) {
         if (lastPrice < slPrice || lastPrice > tpPrice) this.closePosition();
       } else {
@@ -413,6 +421,40 @@ export class Bot implements IBotConfig {
     const _log = new LogData(type, log, data);
     const logData = _log.save(`${this.pair}-${this.id}`);
     this.log.unshift(logData);
+  }
+
+  private async processHistData() {
+    const histDataArray: any[] = await convertCSVtoJSON(this.histRawData) as any[];
+    console.log({Length: histDataArray.length});
+    console.log(histDataArray[0])
+    for (let i = 0; i < histDataArray.length; i++) {
+      await new Promise((res) => setTimeout(() => res(true), 10));
+      const cc = histDataArray[i];
+      const bwcu = cc['Blue Wave Crossing UP'];
+      const bwcd = cc['Blue Wave Crossing Down'];
+      const cp = cc['close'];
+      const ct = cc['time'];
+      const mf = cc['Mny Flow'];
+      if (bwcu !== 'NaN') {
+        if (bwcu) {
+          if (parseFloat(bwcu) < -30 ) {
+            if (this.openedPosition?.positionType === "SHORT")  await this.closePosition(cp, ct);
+          }
+          if (parseFloat(bwcu) < -50 ) {
+            if (!this.openedPosition) await this.openPosition('LONG', cp, ct);
+          }
+        }
+      }
+
+      if (bwcd !== 'NaN') {
+        if (parseFloat(bwcd) < 30) {
+          if (this.openedPosition?.positionType === "LONG") await this.closePosition(cp, ct);
+        }
+        if (parseFloat(bwcd) > 50) {
+          if (!this.openedPosition) await this.openPosition('SHORT', cp, ct);
+        }
+      }
+    }
   }
 }
 
@@ -430,6 +472,31 @@ class botsManager {
         addLogRoute(newBot.id);
     }
 
+    // addHistoricalBot(histData: any) {
+    //   const conf: IBotConfig = {
+    //     pair: 'ADAUSDT',
+    //     initAmount: 5000,
+    //     percentForEachTrade: 0.5,
+    //     leverage: 10,
+    //     strategy: 'hist',
+    //     yxbd: {
+    //       yx: null,
+    //       bd: null,
+    //     }
+    //   };
+    //   this.addBot(conf, async () => {
+    //     console.log(`Hist Added!`);
+    //     for (let i = 0; i <= histData.length; i++) {
+    //       console.log(histData[i]);
+    //       const to = () => {
+    //         return new Promise(res => {
+    //           setTimeout(() => res(true), 1000);
+    //         })
+    //       };
+    //       await to();
+    //     }
+    //   })      
+    // }
     removeBot(id: number, cb: () => void) {
         const bot = this.allBots.find(bot => bot.id === id);
         if (!bot) return;
@@ -438,12 +505,18 @@ class botsManager {
     }
 }
 
-
 export const myBotManager = new botsManager();
 
+// const myFunc = async () => {
+//   convertCSVtoJSON('../server/b.csv').then(jsonHistData => {
+//   myBotManager.addHistoricalBot(jsonHistData);
+//   })
+// }
+// myFunc();
 export const handleAlerts = (alert: string) => {
   // const botsWithCurrentAlert = myBotManager.allBots.filter(bot => bot.alerts[alert]);
-  myBotManager.allBots.forEach(bot => bot.handleAlert(alert));
+  myBotManager.allBots.filter(bot => !bot.histRawData)
+    .forEach(bot => bot.handleAlert(alert));
 }
 
 export const getBotLogById = (id: number) => {

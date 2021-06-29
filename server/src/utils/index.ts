@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import * as fs from 'fs';
 
-export const getDate = () => moment().utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
+export const getDate = (time: string = undefined) =>  moment(time).utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
 
 export const localLog = [];
 
@@ -40,3 +40,25 @@ export class LogData {
         return obj;
     }
 }
+
+export const convertCSVtoJSON = (csvPath: string) => {
+    return new Promise((res, rej) => {
+        try {
+            const result = csvPath.split('\n');
+            const keys = result[0].split(',');
+            result.shift();
+            const finalArr = []
+            result.forEach(d => {
+                const arr = d.split(',');
+                const data = {};
+                keys.forEach((d2, i) => {
+                    data[d2] = arr[i];
+                });
+                finalArr.push(data)
+            });
+            res(finalArr);
+        } catch (err) {
+            rej(err.message);
+        }
+    })
+  }
