@@ -4,12 +4,9 @@ import { socket as mainSocket } from '../index';
 import { binanceApi } from "../apis/binance-api.service";
 import { myBotManager } from './manager';
 import { adaSubs } from "./events";
-import { ProdInstance } from './prodInstance';
+import { myBinance } from './prodInstance';
 
 export type TTrend = 'up' | 'down';
-
-
-const myBinance = new ProdInstance();
 
 export interface IBotConfig {
     pair: string,
@@ -84,6 +81,7 @@ export class Bot implements IBotConfig {
       } = botConfig;
 
       this.id = id;
+      if (id === 1) this.prod = true;
       this.pair = pair;
       this.initAmount = initAmount;
       this.equity = initAmount;
@@ -134,7 +132,7 @@ export class Bot implements IBotConfig {
       }
     }
   
-    private async openPosition(type: PositionType, _price: number = null, time: string = null) {
+    private async openPosition(type: PositionType, _price: number = null, time: string = undefined) {
       if (this.openedPosition) return;
       const price = _price ? _price : await this.getCurrentPrice();
       if (!price) return;
@@ -143,15 +141,23 @@ export class Bot implements IBotConfig {
           ? this.percentForEachTrade * this.equity
           : this.percentForEachTrade * this.initAmount;
   
+      if (this.prod) {
+        await myBinance.reduceAll();
+        type === 'LONG' ? await myBinance.buy() : await myBinance.sell();
+      }
+
       this.openedPosition = new Position(type, amount, price, this.equity, this.leverage, time);
       if ((this.sltp.sl || this.sltp.tp) && !this.histRawData) this.openSLTPSubscriber(type, price);
       this.logData(LogType.SUCCESS, `New ${type} Position opened!`);
     }
   
-    private async closePosition(_price: number = null, time: string = null) {
+    private async closePosition(_price: number = null, time: string = undefined) {
       if (!this.openedPosition) return;
       const price = _price ? _price : await this.getCurrentPrice();
       if (!price) return;
+
+      if (this.prod) await myBinance.reduceAll();
+
       this.openedPosition.close(price, time);
       if (this.listener) adaSubs.eventEmmiter.removeListener('priceSubs', this.listener)
 

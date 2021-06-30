@@ -30,7 +30,7 @@ export class Position {
       price: number,
       equity: number,
       leverage: number,
-      time: string = null,
+      time: string | undefined = undefined,
     ) {
       this.positionType = positionType;
   
@@ -45,7 +45,7 @@ export class Position {
       this.borrowAmount = this.positionAmount - amount;
     }
   
-    close(price: number, time: string = null) {
+    close(price: number, time: string = undefined) {
       const isLong = this.positionType === 'LONG';
       this.closedAt = getDate(time);
       this.closePrice = price;

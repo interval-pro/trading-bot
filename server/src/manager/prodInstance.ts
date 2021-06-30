@@ -1,9 +1,12 @@
 import { envConfig } from '../config';
 import * as Binance from 'node-binance-api'
+import { addProductionLog } from '../utils';
 
-export class ProdInstance {
+class ProdInstance {
     private binance: Binance;
-  
+    private procentForEachTrade: number = 0.9;
+    private laverage: number = 15;
+
     constructor() {
       this.binance = new Binance().options({
         APIKEY: envConfig.BINANCE_API_KEY,
@@ -11,47 +14,91 @@ export class ProdInstance {
       });
     }
   
-    async getBalance() {
-      const res = await this.binance.futuresBalance();
-      const myBalance = res.find((balObj: any) => balObj.asset === 'USDT').balance;
-      return parseFloat(myBalance);
+    private async getBalance() {
+      try {
+        const res = await this.binance.futuresBalance();
+        const myBalance = res.find((balObj: any) => balObj.asset === 'USDT').availableBalance
+        return parseFloat(parseFloat(myBalance).toFixed(0));
+      } catch(err) {
+        addProductionLog(err.message);
+        return null;
+      }
     }
   
-    async getADAprice() {
-      const allMarketsPrices = await this.binance.futuresPrices();
-      const adaPrice = allMarketsPrices.ADAUSDT;
-      return parseFloat(adaPrice)
+    private async getADAprice() {
+      try {
+        const allMarketsPrices = await this.binance.futuresPrices();
+        const adaPrice = allMarketsPrices.ADAUSDT;
+        return parseFloat(adaPrice)
+      } catch(err) {
+        addProductionLog(err.message);
+        return null;
+      }
     }
   
     async buy() {
-      const balance = await this.getBalance();
-      const price = await this.getADAprice();
-      const numberTokens = Math.round((balance * 10) / price);
-  
-      await this.reduceAll();
-      console.log({numberTokens: (numberTokens / 2)})
-      // await this.binance.futuresMarketBuy('ADAUSDT', (numberTokens / 2))
+      const amountOfTokens = await this.getAmountForPosition();
+      if (!amountOfTokens) return;
+      try {
+        await this.binance.futuresMarketBuy('ADAUSDT', amountOfTokens);
+        addProductionLog(`Buy! ${amountOfTokens}`);
+      } catch(err) {
+        console.log(`Error: ${err.message}`);
+        addProductionLog(err.message);
+      }
     }
   
     async sell() {
-      const balance = await this.getBalance();
-      const price = await this.getADAprice();
-      const numberTokens = Math.round((balance * 10) / price);
-  
-      await this.reduceAll();
-      console.log({numberTokens: (numberTokens / 2)})
-  
-      // await this.binance.futuresMarketSell('ADAUSDT', (numberTokens / 2))
+      const amountOfTokens = await this.getAmountForPosition();
+      if (!amountOfTokens) return;
+      try {
+        await this.binance.futuresMarketSell('ADAUSDT', amountOfTokens);
+        addProductionLog(`Sell! ${amountOfTokens}`);
+      } catch(err) {
+        console.log(`Error: ${err.message}`);
+        addProductionLog(err.message);
+      }
     }
   
     async reduceAll() {
-      const balance = await this.getBalance();
-      const price = await this.getADAprice();
-      const maxTokens = Math.round((balance * 10) / price);
-  
-      const reduceAmount = maxTokens - 20;
-      console.log({reduceAmount})
-      // await this.binance.futuresMarketSell('ADAUSDT', reduceAmount, { reduceOnly: true });
-      // await this.binance.futuresMarketBuy('ADAUSDT', reduceAmount, { reduceOnly: true });
+      const openedPositionAmount = await this.getOpenedPositionAmount();
+      if (!openedPositionAmount) return;
+
+      try {
+        const absoluteValueOfOpenedAmount = Math.abs(openedPositionAmount);
+        openedPositionAmount > 0
+          ? await this.binance.futuresMarketSell('ADAUSDT', absoluteValueOfOpenedAmount, { reduceOnly: true })
+          : await this.binance.futuresMarketBuy('ADAUSDT', absoluteValueOfOpenedAmount, { reduceOnly: true });
+          addProductionLog(`Closed! ${openedPositionAmount}`);
+      } catch(err) {
+        console.log(`Error: ${err.messaga}`);
+        addProductionLog(err.message);
+      }
+    }
+
+    private async getOpenedPositionAmount() {
+      try {
+        const fetauresAccAda = (await this.binance.futuresAccount()).positions.find(e => e.symbol === 'ADAUSDT');
+        const positionAmt = fetauresAccAda.positionAmt;
+        return parseFloat(positionAmt)
+      } catch (err) {
+        addProductionLog(err.message);
+        return null;
+      }
+    }
+    private async getAmountForPosition() {
+      try {
+        const balance = await this.getBalance();
+        const price = await this.getADAprice();
+        if (!balance || !price) return null;
+        const maxBuy = (balance * this.laverage) / price;
+        const amountOfTokens = (maxBuy * this.procentForEachTrade).toFixed(0);
+        return parseFloat(amountOfTokens);
+      } catch (err) {
+        addProductionLog(err.message);
+        return null;
+      }
     }
   }
+
+  export const myBinance = new ProdInstance();
