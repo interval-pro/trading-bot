@@ -184,7 +184,6 @@ export class Bot implements IBotConfig {
     }
   
     private openSLTPSubscriber(type: PositionType, price: number) {
-      console.log('isOpen!')
       const isLong: boolean = type === 'LONG';
       this.listener = this.onPriceSubs(isLong, price).bind(this);
       adaSubs.eventEmmiter.addListener('priceSubs', this.listener);
