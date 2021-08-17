@@ -123,12 +123,20 @@ export class Bot implements IBotConfig {
   
     async handleAlert(alert: string) {
       this.logData(LogType.SUCCESS, `New Alert: ${alert}`);
-      if (alert === 'red1_peak_60') {
+      if (alert === 'red15_peak_60') {
         if (!this.openedPosition) this.openPosition('SHORT');
       }
 
-      if (alert === 'green1_bottom_60') {
+      if (alert === 'green15_bottom_60') {
         if (!this.openedPosition) this.openPosition('LONG');
+      }
+
+      if (alert === 'close15_green_dot') {
+        if (this.openedPosition?.positionType === 'SHORT') this.closePosition();
+      }
+
+      if (alert === 'close15_red_dot') {
+        if (this.openedPosition?.positionType === 'LONG') this.closePosition();
       }
     }
   
@@ -137,9 +145,7 @@ export class Bot implements IBotConfig {
       const price = _price ? _price : await this.getCurrentPrice();
       if (!price) return;
 
-      const amount = this.equity >= this.initAmount
-          ? this.percentForEachTrade * this.equity
-          : this.percentForEachTrade * this.initAmount;
+      const amount = this.percentForEachTrade * this.equity;
   
       if (this.prod) {
         await myBinance.reduceAll();
@@ -195,10 +201,15 @@ export class Bot implements IBotConfig {
           : openPrice - (openPrice * this.sltp.tp);
     
         const { lastPrice } = data;
+        // if (isLong) {
+        //   if (lastPrice < slPrice || lastPrice > tpPrice) this.closePosition();
+        // } else {
+        //   if (lastPrice > slPrice || lastPrice < tpPrice) this.closePosition();
+        // }
         if (isLong) {
-          if (lastPrice < slPrice || lastPrice > tpPrice) this.closePosition();
+          if (lastPrice < slPrice) this.closePosition();
         } else {
-          if (lastPrice > slPrice || lastPrice < tpPrice) this.closePosition();
+          if (lastPrice > slPrice) this.closePosition();
         }
       }
     }
@@ -228,18 +239,16 @@ export class Bot implements IBotConfig {
         } else {
           const isLong = this.openedPosition.positionType === 'LONG';
           const openPrice = this.openedPosition.openPrice;
-
-          const slPrice = isLong
+          const _slPrice = isLong
             ? openPrice - (openPrice * this.sltp.sl)
             : openPrice + (openPrice * this.sltp.sl);
-    
-          const tpPrice = isLong
-            ? openPrice + (openPrice * this.sltp.tp)
-            : openPrice - (openPrice * this.sltp.tp);
+          const slPrice = parseFloat(_slPrice.toFixed(2));
           if (isLong) {
-            if (cp < slPrice || cp > tpPrice) await this.closePosition(cp, ct);
+            if (cp < slPrice) await this.closePosition(slPrice, ct);
+            if (parseFloat(bwcd) > 0) await this.closePosition(cp, ct);
           } else {
-            if (cp > slPrice || cp < tpPrice) await this.closePosition(cp, ct);
+            if (cp > slPrice) await this.closePosition(slPrice, ct);
+            if (parseFloat(bwcu) < 0) await this.closePosition(cp, ct);
           }
         }
       }

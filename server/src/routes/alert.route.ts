@@ -4,7 +4,7 @@ import { handleAlerts } from '../manager/manager';
 export const alert = Router();
 
 
-const alertsArray = ['red1_peak_60', 'green1_bottom_60'];
+const alertsArray = ['red15_peak_60', 'green15_bottom_60', 'close15_green_dot', 'close15_red_dot'];
 alertsArray.forEach((a: string) => {
     alert.post(`/${a}`, (req, res) => {
         try {

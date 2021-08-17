@@ -4,8 +4,8 @@ import { addProductionLog } from '../utils';
 
 class ProdInstance {
     private binance: Binance;
-    private procentForEachTrade: number = 0.9;
-    private laverage: number = 15;
+    private procentForEachTrade: number = 0.8;
+    private laverage: number = 10;
 
     constructor() {
       this.binance = new Binance().options({
