@@ -210,11 +210,11 @@ export class Bot implements IBotConfig {
           : openPrice - (openPrice * this.sltp.tp);
     
         const { lastPrice } = data;
-        // if (isLong) {
-        //   if (lastPrice < slPrice || lastPrice > tpPrice) this.closePosition();
-        // } else {
-        //   if (lastPrice > slPrice || lastPrice < tpPrice) this.closePosition();
-        // }
+        if (isLong) {
+          if (lastPrice < slPrice || lastPrice > tpPrice) this.closePosition();
+        } else {
+          if (lastPrice > slPrice || lastPrice < tpPrice) this.closePosition();
+        }
         if (isLong) {
           if (lastPrice < slPrice) this.closePosition();
         } else {
