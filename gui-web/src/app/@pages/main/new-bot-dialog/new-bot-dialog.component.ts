@@ -58,8 +58,8 @@ export class NewTradingBotDialog implements OnInit {
     });
 
     this.sltpFB = this.fb.group({
-      sl: [0.01, [Validators.min(0.0001), Validators.max(0.1)]],
-      tp: [0.01, [Validators.min(0.0001), Validators.max(0.1)]],
+      sl: [0.01, [Validators.min(0), Validators.max(0.1)]],
+      tp: [0.01, [Validators.min(0), Validators.max(0.1)]],
     })
   }
 
@@ -94,8 +94,8 @@ export class NewTradingBotDialog implements OnInit {
 
     const { sl, tp } = this.sltpFB.value;
     botConfig.sltp = {
-      sl: strategy === "pb" ? sl : null,
-      tp: strategy === "pb" ? tp : null,
+      sl: sl || null,
+      tp: tp || null,
     };
     botConfig.histData = this.histFileData || null;
     this.socketService.socket.emit('addNewBot', botConfig);
