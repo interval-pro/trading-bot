@@ -194,9 +194,9 @@ export class Bot implements IBotConfig {
       const isLong: boolean = type === 'LONG';
       this.listener = this.onPriceSubs(isLong, price).bind(this);
       adaSubs.eventEmmiter.addListener('priceSubs', this.listener);
-      adaSubs.eventEmmiter.addListener('trades', (data: any) => {
-        console.log(data);
-      })
+      // adaSubs.eventEmmiter.addListener('trades', (data: any) => {
+      //   console.log(data);
+      // })
     }
   
     onPriceSubs(isLong: boolean, openPrice: number) {
@@ -211,15 +211,17 @@ export class Bot implements IBotConfig {
     
         const { lastPrice } = data;
         if (isLong) {
-          if (lastPrice < slPrice || lastPrice > tpPrice) this.closePosition();
+          if (this.sltp.sl && lastPrice < slPrice) this.closePosition();
+          if (this.sltp.tp && lastPrice > tpPrice) this.closePosition();
         } else {
-          if (lastPrice > slPrice || lastPrice < tpPrice) this.closePosition();
+          if (this.sltp.sl && lastPrice > slPrice) this.closePosition();
+          if (this.sltp.tp && lastPrice < tpPrice) this.closePosition();
         }
-        if (isLong) {
-          if (lastPrice < slPrice) this.closePosition();
-        } else {
-          if (lastPrice > slPrice) this.closePosition();
-        }
+        // if (isLong) {
+        //   if (lastPrice < slPrice) this.closePosition();
+        // } else {
+        //   if (lastPrice > slPrice) this.closePosition();
+        // }
       }
     }
   

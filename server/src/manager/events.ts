@@ -41,9 +41,9 @@ class PriceSubscriber {
             try {
               const data = message.data;
               const json = JSON.parse(data);
-              if (parseFloat(json['q']) > 10000) {
-                  console.log({json});
-              }
+            //   if (parseFloat(json['q']) > 10000) {
+            //       console.log({json});
+            //   }
               this.em.emit('trades', json);
             } catch (error) {
               console.log(error.message);
