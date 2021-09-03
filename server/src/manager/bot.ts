@@ -145,6 +145,16 @@ export class Bot implements IBotConfig {
           if (!this.openedPosition) await this.openPosition('SHORT');
         }
       }
+
+      if (this.strategy === 'tons-10-3-long') {
+        if (alert === '10-3-long-buy') {
+          if (!this.openedPosition) await this.openPosition('LONG');
+        }
+  
+        if (alert === '10-3-long-sell') {
+          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+        }
+      }
     }
   
     private async openPosition(type: PositionType, _price: number = null, time: string = undefined) {
@@ -209,7 +219,8 @@ export class Bot implements IBotConfig {
           ? openPrice + (openPrice * this.sltp.tp)
           : openPrice - (openPrice * this.sltp.tp);
     
-        const { lastPrice } = data;
+        const lastPrice = parseFloat(data?.lastPrice);
+        if (!lastPrice || lastPrice < 0) return;
         if (isLong) {
           if (this.sltp.sl && lastPrice < slPrice) this.closePosition();
           if (this.sltp.tp && lastPrice > tpPrice) this.closePosition();
@@ -271,7 +282,6 @@ export class Bot implements IBotConfig {
             const _slPrice = parseFloat((openPrice + ((openPrice * slPercent) / 100)).toFixed(3));
             const slPrice = prevCandleHigh && prevCandleHigh > _slPrice ? prevCandleHigh : _slPrice;
             if (priceHigh > slPrice) {
-              console.log({prevCandleHigh, _slPrice, slPrice})
               await this.closePosition(slPrice, time);
             }
             if (priceLow < emaLevelPrice){
