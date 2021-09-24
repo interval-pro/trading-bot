@@ -20,8 +20,11 @@ export class ChartComponent implements OnInit {
       "timezone": "Europe/Moscow",
       "theme": "dark",
       "locale": "en",
-      "allow_symbol_change": true,
-      "container_id": "chart"
+      "allow_symbol_change": false,
+      "container_id": "chart",
+      "hide_side_toolbar": false,
     });
+    console.log((window as any).TradingView.onready(() => console.log({chart, e: (window as any).TradingView})));
+    console.log(chart.ready(() => console.log({chart})))
   }
 }

@@ -122,6 +122,27 @@ export class Bot implements IBotConfig {
   
     async handleAlert(alert: string) {
       this.logData(LogType.SUCCESS, `New Alert: ${alert}`);
+      if (this.strategy === 'oldStratedy') {
+        if (alert === 'YX1' || alert === 'BD1') {
+          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+          if (!this.openedPosition) await this.openPosition('SHORT');
+        }
+
+        if (alert === 'green1close') {
+          if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
+        }
+        if (alert === 'red1close') {
+          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+        }
+        if (alert === 'green1open') {
+          if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
+          if (!this.openedPosition) await this.openPosition('LONG');
+        }
+        if (alert === 'red1open') {
+          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+          if (!this.openedPosition) await this.openPosition('SHORT');
+        }
+      }
       if (this.strategy === 'tons-7min') {
         if (alert === 'BYD7' ) {
           if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
