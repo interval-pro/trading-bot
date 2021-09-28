@@ -128,54 +128,48 @@ export class Bot implements IBotConfig {
           if (!this.openedPosition) await this.openPosition('SHORT');
         }
 
-        if (alert === 'green1close') {
-          if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
-        }
-        if (alert === 'red1close') {
-          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
-        }
-        if (alert === 'green1open') {
-          if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
-          if (!this.openedPosition) await this.openPosition('LONG');
-        }
-        if (alert === 'red1open') {
-          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
-          if (!this.openedPosition) await this.openPosition('SHORT');
-        }
-      }
-      if (this.strategy === 'tons-7min') {
-        if (alert === 'BYD7' ) {
-          if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
-          if (!this.openedPosition) await this.openPosition('LONG');
-        }
-  
-        if (alert === 'BRC7') {
-          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
-          if (!this.openedPosition) await this.openPosition('SHORT');
-        }
+          if (alert === 'red1_peak_60') {
+            if (!this.openedPosition) this.openPosition('SHORT');
+          }
+    
+          if (alert === 'green1_bottom_60') {
+            if (!this.openedPosition) this.openPosition('LONG');
+          }
       }
 
-      if (this.strategy === 'tons-30min') {
-        if (alert === 'SDSO30') {
-          if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
-          if (!this.openedPosition) await this.openPosition('LONG');
-        }
+      // if (this.strategy === 'tons-7min') {
+      //   if (alert === 'BYD7' ) {
+      //     if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
+      //     if (!this.openedPosition) await this.openPosition('LONG');
+      //   }
   
-        if (alert === 'BRC30') {
-          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
-          if (!this.openedPosition) await this.openPosition('SHORT');
-        }
-      }
+      //   if (alert === 'BRC7') {
+      //     if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+      //     if (!this.openedPosition) await this.openPosition('SHORT');
+      //   }
+      // }
 
-      if (this.strategy === 'tons-10-3-long') {
-        if (alert === '10-3-long-buy') {
-          if (!this.openedPosition) await this.openPosition('LONG');
-        }
+      // if (this.strategy === 'tons-30min') {
+      //   if (alert === 'SDSO30') {
+      //     if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
+      //     if (!this.openedPosition) await this.openPosition('LONG');
+      //   }
   
-        if (alert === '10-3-long-sell') {
-          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
-        }
-      }
+      //   if (alert === 'BRC30') {
+      //     if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+      //     if (!this.openedPosition) await this.openPosition('SHORT');
+      //   }
+      // }
+
+      // if (this.strategy === 'tons-10-3-long') {
+      //   if (alert === '10-3-long-buy') {
+      //     if (!this.openedPosition) await this.openPosition('LONG');
+      //   }
+  
+      //   if (alert === '10-3-long-sell') {
+      //     if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+      //   }
+      // }
     }
   
     private async openPosition(type: PositionType, _price: number = null, time: string = undefined) {
@@ -183,8 +177,14 @@ export class Bot implements IBotConfig {
       const price = _price ? _price : await this.getCurrentPrice();
       if (!price) return;
 
-      const amount = this.percentForEachTrade * this.initAmount;
+      // const amount = this.equity >= this.initAmount
+      //   ? this.percentForEachTrade * this.equity
+      //   : this.percentForEachTrade * this.initAmount;
+
+      // const amount = this.percentForEachTrade * this.initAmount;
   
+      const amount = this.percentForEachTrade * this.equity
+
       if (this.prod) {
         await myBinance.reduceAll();
         type === 'LONG' ? await myBinance.buy() : await myBinance.sell();
