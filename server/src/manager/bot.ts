@@ -122,11 +122,18 @@ export class Bot implements IBotConfig {
   
     async handleAlert(alert: string) {
       this.logData(LogType.SUCCESS, `New Alert: ${alert}`);
-      if (this.strategy === 'oldStratedy') {
-        if (alert === 'YX1' || alert === 'BD1') {
-          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
-          if (!this.openedPosition) await this.openPosition('SHORT');
-        }
+      if (this.strategy === 'os') {
+          if (alert === 'YX1') {
+            if (!this.yx) return;
+            if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+            if (!this.openedPosition) await this.openPosition('SHORT');
+          }
+
+          if (alert === 'BD1') {
+            if (!this.bd) return;
+            if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+            if (!this.openedPosition) await this.openPosition('SHORT');
+          }
 
           if (alert === 'red1_peak_60') {
             if (!this.openedPosition) this.openPosition('SHORT');
@@ -136,6 +143,29 @@ export class Bot implements IBotConfig {
             if (!this.openedPosition) this.openPosition('LONG');
           }
       }
+
+      if (this.strategy === 'os-close') {
+        if (alert === 'YX1') {
+          if (!this.yx) return;
+          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+          if (!this.openedPosition) await this.openPosition('SHORT');
+        }
+
+        if (alert === 'BD1') {
+          if (!this.bd) return;
+          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+          if (!this.openedPosition) await this.openPosition('SHORT');
+        }
+
+        if (alert === 'red1_peak_60') {
+          if (this.openedPosition?.positionType === "LONG") await this.closePosition();
+          if (!this.openedPosition) await this.openPosition('SHORT');        }
+  
+        if (alert === 'green1_bottom_60') {
+          if (this.openedPosition?.positionType === "SHORT") await this.closePosition();
+          if (!this.openedPosition) this.openPosition('LONG');
+        }
+    }
 
       // if (this.strategy === 'tons-7min') {
       //   if (alert === 'BYD7' ) {
@@ -266,98 +296,80 @@ export class Bot implements IBotConfig {
     private async processHistData() {
       console.log(`Process Hist data`);
       const histDataArray: any[] = await convertCSVtoJSON(this.histRawData) as any[];
-      let _test: any = null;
       for (let i = 0; i < histDataArray.length - 1; i++) {
         await new Promise((res) => setTimeout(() => res(true), 5));
-        ///out_of_ema,ema,sell_signal,buy_signal
         const cc = histDataArray[i];
         const time = cc['time'];
-        const priceClose = parseFloat(cc['close'])
+        const priceClose = parseFloat(cc['close']);
         const priceHigh = parseFloat(cc['high']);
         const priceLow = parseFloat(cc['low']);
-        const longDot = parseFloat(cc['buy_signal']) || null;
-        const shortDot = parseFloat(cc['sell_signal']) || null;
-        const emaLevelPrice = parseFloat(parseFloat(cc['ema']).toFixed(3));
+        const longDot = parseFloat(cc['Blue Wave Crossing UP']) || null;
+        const shortDot = parseFloat(cc['Blue Wave Crossing Down']) || null;
+        const yxSignal = parseFloat(cc['Yellow X']);
+        const bdSignal = parseFloat(cc['Blood Diamond']);
 
-        if (!this.openedPosition) {
-          if (longDot) await this.openPosition('LONG', priceClose, time);
-          if (shortDot) await this.openPosition('SHORT', priceClose, time);
-          if (longDot || shortDot) _test = i;
-        } else {
-          const slPercent = 0.1;
-          const isLong = this.openedPosition.positionType === 'LONG';
-          const openPrice = this.openedPosition.openPrice;
-          if (isLong) {
-            const prevCandleLow = parseFloat(histDataArray?.[_test - 1]?.['low']) || null;
-            const _slPrice = parseFloat((openPrice - ((openPrice * slPercent) / 100)).toFixed(3));
-            const slPrice = prevCandleLow && prevCandleLow < _slPrice ? prevCandleLow : _slPrice;
-            if (priceLow < slPrice) {
-              console.log({prevCandleLow, _slPrice, slPrice})
-              await this.closePosition(slPrice, time);
+          if (yxSignal && this.yx) {
+              if (this.openedPosition?.positionType === "LONG") await this.closePosition(priceClose, time);
+              if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
+          }
+
+          if (bdSignal && this.bd) {
+            if (this.openedPosition?.positionType === "LONG") await this.closePosition(priceClose, time);
+            if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
+          }
+
+          if (this.strategy === 'os') {
+              if (longDot && longDot <= -60) {
+                if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
+              }
+        
+              if (shortDot && shortDot >= 60) {
+                if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
+              }
+          }
+
+          if (this.strategy === 'os-close') {
+            if (longDot && longDot <= -60) {
+              if (this.openedPosition?.positionType === "LONG") await this.closePosition(priceClose, time);
+              if (!this.openedPosition) await this.openPosition('SHORT');
             }
-            if (priceHigh > emaLevelPrice) {
-              await this.closePosition(emaLevelPrice, time);
-            }
-          } else {
-            const prevCandleHigh = parseFloat(histDataArray?.[_test - 1]?.['high']) || null;
-            const _slPrice = parseFloat((openPrice + ((openPrice * slPercent) / 100)).toFixed(3));
-            const slPrice = prevCandleHigh && prevCandleHigh > _slPrice ? prevCandleHigh : _slPrice;
-            if (priceHigh > slPrice) {
-              await this.closePosition(slPrice, time);
-            }
-            if (priceLow < emaLevelPrice){
-              await this.closePosition(emaLevelPrice, time);
+            if (shortDot && shortDot >= 60) {
+              if (this.openedPosition?.positionType === "SHORT") await this.closePosition(priceClose, time);
+              if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
             }
           }
-        }
-        // const outOfEmaPercent = cc['out_of_ema'];
-        // const ema = parseFloat(parseFloat(cc['ema']).toFixed(4));
-        // const longDot = cc['buy_signal'];
-        // const shortDot = cc['sell_signal'];
-        // const ct = cc['time'];
-        // const 
-        // const cp = parseFloat(parseFloat(cc['close']).toFixed(4));
-        // if(!this.openedPosition) {
-        //   if (longDot && longDot !== 'NaN') await this.openPosition('LONG', cp, ct);
-        //   if (shortDot && shortDot !== 'NaN') await this.openPosition('SHORT', cp, ct);
-        // } else {
-        //   const sl = 0.2;
-        //   const isLong = this.openedPosition.positionType === 'LONG';
-        //   const openPrice = this.openedPosition.openPrice;
-        //   const _slPrice = isLong
-        //     ? openPrice - ((openPrice * sl) / 100)
-        //     : openPrice + ((openPrice * sl) / 100);
-        //   const slPrice = parseFloat(_slPrice.toFixed(4));
-        //   if (isLong) {
-        //     if (cp < slPrice) await this.closePosition(slPrice, ct);
-        //     if (cp > ema) await this.closePosition(ema, ct);
-        //   } else {
-        //     if (cp > slPrice) await this.closePosition(slPrice, ct);
-        //     if (cp < ema) await this.closePosition(ema, ct);          }
-        // }
-        // const bwcu = cc['Blue Wave Crossing UP'];
-        // const bwcd = cc['Blue Wave Crossing Down'];
-        // const cp = parseFloat(cc['close']);
-        // const ct = cc['time'];
-        // const mf = cc['Mny Flow'];
-        // if (!this.openedPosition) {
-        //   if (bwcu && bwcu !== 'NaN' && parseFloat(bwcu) < bwcuBottomLevel) await this.openPosition('LONG', cp, ct);
-        //   if (bwcd && bwcd !== 'NaN' && parseFloat(bwcd) > bwcdTopLevel) await this.openPosition('SHORT', cp, ct);
-        // } else {
-        //   const isLong = this.openedPosition.positionType === 'LONG';
-        //   const openPrice = this.openedPosition.openPrice;
-        //   const _slPrice = isLong
-        //     ? openPrice - (openPrice * this.sltp.sl)
-        //     : openPrice + (openPrice * this.sltp.sl);
-        //   const slPrice = parseFloat(_slPrice.toFixed(2));
-        //   if (isLong) {
-        //     if (cp < slPrice) await this.closePosition(slPrice, ct);
-        //     if (parseFloat(bwcd) > 0) await this.closePosition(cp, ct);
-        //   } else {
-        //     if (cp > slPrice) await this.closePosition(slPrice, ct);
-        //     if (parseFloat(bwcu) < 0) await this.closePosition(cp, ct);
-          // }
-        // }
+
+          if (this.openedPosition) {
+            const openPrice = this.openedPosition.openPrice;
+
+            if (this.sltp?.sl) {
+              if (this.openedPosition?.positionType === 'LONG') {
+                const _slPrice = openPrice - (openPrice * this.sltp.sl);
+                const slPrice = parseFloat(_slPrice.toFixed(4));
+                if (priceLow <= slPrice) await this.closePosition(slPrice, time);
+              }
+  
+              if (this.openedPosition?.positionType === 'SHORT') {
+                const _slPrice = openPrice + (openPrice * this.sltp.sl);
+                const slPrice = parseFloat(_slPrice.toFixed(4));
+                if (priceHigh >= slPrice) await this.closePosition(slPrice, time);
+              }
+            }
+
+            if (this.sltp?.tp) {
+              if (this.openedPosition?.positionType === 'LONG') {
+                const _tpPrice = openPrice + (openPrice * this.sltp.tp);
+                const tpPrice = parseFloat(_tpPrice.toFixed(4));
+                if (priceHigh >= tpPrice) await this.closePosition(tpPrice, time);
+              }
+  
+              if (this.openedPosition?.positionType === 'SHORT') {
+                const _tpPrice = openPrice - (openPrice * this.sltp.tp);
+                const tpPrice = parseFloat(_tpPrice.toFixed(4));
+                if (priceLow <= tpPrice) await this.closePosition(tpPrice, time);
+              }
+            }
+          }
       }
     }
   }

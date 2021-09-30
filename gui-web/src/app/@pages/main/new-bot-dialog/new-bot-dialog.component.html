@@ -35,8 +35,10 @@
                             <mat-select formControlName='strategy'>
                                 <mat-option value='tons-7min' disabled>Tons 7 min</mat-option>
                                 <mat-option value='tons-30min' disabled>Tons 30 min</mat-option>
-                                <mat-option value='tons-10-3-long' dsabled>Tons 10-3 long</mat-option>
-                                <mat-option value='oldStratedy'>Old strategy</mat-option>
+                                <mat-option value='tons-10-3-long' disabled>Tons 10-3 long</mat-option>
+                                <mat-option value='os'>Old strategy</mat-option>
+                                <mat-option value='os-close'>Old strategy - closeEachDot</mat-option>
+
                                 <!-- <mat-option value='pb' disabled>Peak & Bottom</mat-option>
                                 <mat-option value='1m-5m' disabled>1m-5m</mat-option>
                                 <mat-option value='1h-7m' disabled>1h-7m</mat-option>
@@ -54,6 +56,10 @@
                         <input formControlName='tp' step='0.001' type="number" matInput>
                       </mat-form-field>
             </div>
+                <div class="yxbd" style="display: flex; align-items: center; width: 100%;justify-content: space-around;" [formGroup]='yxbdFb' >
+                    <mat-checkbox formControlName='yx' labelPosition="before">YX: </mat-checkbox>
+                    <mat-checkbox formControlName='yx' labelPosition="before">YX: </mat-checkbox>
+                </div>
                 <div class="yxbd" [formGroup]='yxbdFb' *ngIf='false'>
                     <div class='sub'>
                         <p style='width: 15%'>

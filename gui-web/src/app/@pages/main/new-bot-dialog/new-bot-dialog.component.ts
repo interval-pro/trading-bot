@@ -87,9 +87,14 @@ export class NewTradingBotDialog implements OnInit {
 
     const { yx, yxAction, yxTimeout, bd, bdAction, bdTimeout } = this.yxbdFb.value;
 
+    // botConfig.yxbd = {
+    //   yx: !yx ? null : (yxAction === 'timeout' && yxTimeout) ? `timeout_${yxTimeout}` : yxAction,
+    //   bd: !bd ? null : (bdAction === 'timeout' && bdTimeout) ? `timeout_${bdTimeout}` : bdAction,
+    // };
+
     botConfig.yxbd = {
-      yx: !yx ? null : (yxAction === 'timeout' && yxTimeout) ? `timeout_${yxTimeout}` : yxAction,
-      bd: !bd ? null : (bdAction === 'timeout' && bdTimeout) ? `timeout_${bdTimeout}` : bdAction,
+      yx: !!yx,
+      bd: !!bd,
     };
 
     const { sl, tp } = this.sltpFB.value;
@@ -98,6 +103,7 @@ export class NewTradingBotDialog implements OnInit {
       tp: tp || null,
     };
     botConfig.histData = this.histFileData || null;
+    console.log(botConfig);
     this.socketService.socket.emit('addNewBot', botConfig);
     this.dialogService.closeAll();
   }

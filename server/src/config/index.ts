@@ -9,6 +9,6 @@ export const envConfig = {
 }
 
 export const certObj = {
-    key: fs.readFileSync('../../server.key'),
-    cert: fs.readFileSync('../../server.cert')
+    key: fs.readFileSync('./server.key'),
+    cert: fs.readFileSync('./server.cert')
 };
