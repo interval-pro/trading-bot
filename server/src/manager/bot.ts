@@ -81,7 +81,7 @@ export class Bot implements IBotConfig {
       } = botConfig;
 
       this.id = id;
-      // if (id === 1) this.prod = true;
+      if (id === 1) this.prod = true;
       this.pair = pair;
       this.initAmount = initAmount;
       this.equity = initAmount;

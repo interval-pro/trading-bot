@@ -12,12 +12,14 @@ class ProdInstance {
         APIKEY: envConfig.BINANCE_API_KEY,
         APISECRET: envConfig.BINANCE_API_SECRET,
       });
+      addProductionLog(`PRODUCTION BOT STARTED!`);
     }
   
     private async getBalance() {
       try {
         const res = await this.binance.futuresBalance();
-        const myBalance = res.find((balObj: any) => balObj.asset === 'USDT').availableBalance
+        const myBalance = res.find((balObj: any) => balObj.asset === 'BUSD').availableBalance;
+        addProductionLog(`Balance: ${myBalance}`);
         return parseFloat(parseFloat(myBalance).toFixed(0));
       } catch(err) {
         addProductionLog(err.message);
@@ -29,6 +31,7 @@ class ProdInstance {
       try {
         const allMarketsPrices = await this.binance.futuresPrices();
         const adaPrice = allMarketsPrices.ADAUSDT;
+        addProductionLog(`ADA Price: ${adaPrice}`);
         return parseFloat(adaPrice)
       } catch(err) {
         addProductionLog(err.message);
@@ -67,8 +70,8 @@ class ProdInstance {
       try {
         const absoluteValueOfOpenedAmount = Math.abs(openedPositionAmount);
         openedPositionAmount > 0
-          ? await this.binance.futuresMarketSell('ADAUSDT', absoluteValueOfOpenedAmount, { reduceOnly: true })
-          : await this.binance.futuresMarketBuy('ADAUSDT', absoluteValueOfOpenedAmount, { reduceOnly: true });
+          ? await this.binance.futuresMarketSell('ADABUSD', absoluteValueOfOpenedAmount, { reduceOnly: true })
+          : await this.binance.futuresMarketBuy('ADABUSD', absoluteValueOfOpenedAmount, { reduceOnly: true });
           addProductionLog(`Closed! ${openedPositionAmount}`);
       } catch(err) {
         console.log(`Error: ${err.messaga}`);
@@ -78,9 +81,10 @@ class ProdInstance {
 
     private async getOpenedPositionAmount() {
       try {
-        const fetauresAccAda = (await this.binance.futuresAccount()).positions.find(e => e.symbol === 'ADAUSDT');
+        const fetauresAccAda = (await this.binance.futuresAccount()).positions.find(e => e.symbol === 'ADABUSD');
         const positionAmt = fetauresAccAda.positionAmt;
-        return parseFloat(positionAmt)
+        addProductionLog(`Position Amount ${positionAmt}`);
+        return parseFloat(positionAmt);
       } catch (err) {
         addProductionLog(err.message);
         return null;
@@ -91,8 +95,9 @@ class ProdInstance {
         const balance = await this.getBalance();
         const price = await this.getADAprice();
         if (!balance || !price) return null;
-        const maxBuy = (balance * this.laverage) / price;
-        const amountOfTokens = (maxBuy * this.procentForEachTrade).toFixed(0);
+        const _amount = (this.procentForEachTrade * balance) * this.laverage;
+        const amountOfTokens = _amount.toFixed(0);
+        addProductionLog(`Calculating Amount of Tokens:  ${amountOfTokens}`);
         return parseFloat(amountOfTokens);
       } catch (err) {
         addProductionLog(err.message);
