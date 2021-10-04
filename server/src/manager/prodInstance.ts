@@ -43,7 +43,7 @@ class ProdInstance {
       const amountOfTokens = await this.getAmountForPosition();
       if (!amountOfTokens) return;
       try {
-        await this.binance.futuresMarketBuy('ADAUSDT', amountOfTokens);
+        await this.binance.futuresMarketBuy('ADABUSD', amountOfTokens);
         addProductionLog(`Buy! ${amountOfTokens}`);
       } catch(err) {
         console.log(`Error: ${err.message}`);
@@ -55,7 +55,7 @@ class ProdInstance {
       const amountOfTokens = await this.getAmountForPosition();
       if (!amountOfTokens) return;
       try {
-        await this.binance.futuresMarketSell('ADAUSDT', amountOfTokens);
+        await this.binance.futuresMarketSell('ADABUSD', amountOfTokens);
         addProductionLog(`Sell! ${amountOfTokens}`);
       } catch(err) {
         console.log(`Error: ${err.message}`);
