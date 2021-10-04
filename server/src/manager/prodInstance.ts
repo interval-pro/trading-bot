@@ -98,7 +98,7 @@ class ProdInstance {
         const price = await this.getADAprice();
         if (!balance || !price) return null;
         const _amount = (this.procentForEachTrade * balance) * this.laverage;
-        const amountOfTokens = _amount.toFixed(0);
+        const amountOfTokens = (_amount / price).toFixed(0);
         addProductionLog(`Calculating Amount of Tokens: ${amountOfTokens}`);
         return parseFloat(amountOfTokens);
       } catch (err) {
