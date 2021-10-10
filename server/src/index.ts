@@ -2,7 +2,7 @@ import * as express from "express";
 import * as cors from 'cors';
 
 import * as Rotues from './routes';
-import { envConfig, certObj } from './config';
+import { envConfig } from './config';
 import { Server } from 'socket.io';
 import { handleSocketConnection } from './sockets';
 const bodyParser = require('body-parser');
