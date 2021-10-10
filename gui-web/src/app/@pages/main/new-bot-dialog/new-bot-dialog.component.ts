@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { BotsService } from 'src/app/@core/services/bots.service';
 import { SocketService } from 'src/app/@core/services/sockets.service';
 
 @Component({
@@ -23,6 +24,7 @@ export class NewTradingBotDialog implements OnInit {
   histFileData: any = null;
   constructor(
       private socketService: SocketService,
+      private botsService: BotsService,
       private dialogService: MatDialog,
       private fb: FormBuilder,
   ) {}
@@ -72,7 +74,7 @@ export class NewTradingBotDialog implements OnInit {
     fileReader.readAsText(file);
   }
 
-  addBot() {
+  async addBot() {
     const {
       pair, initAmount,
       percentForEachTrade, leverage,
@@ -103,8 +105,9 @@ export class NewTradingBotDialog implements OnInit {
       tp: tp || null,
     };
     botConfig.histData = this.histFileData || null;
-    console.log(botConfig);
-    this.socketService.socket.emit('addNewBot', botConfig);
+    const res = await this.botsService.postNewBot(botConfig);
+    console.log({res});
+    // this.socketService.socket.emit('addNewBot', botConfig);
     this.dialogService.closeAll();
   }
 
