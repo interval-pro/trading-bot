@@ -1,6 +1,7 @@
 node_modules
 dist
 *.env
+prod.env
 *.log
 *.cert
 *.key
