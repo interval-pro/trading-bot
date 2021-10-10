@@ -35,7 +35,7 @@
             >
                 <div class="transaction"
                     *ngFor='let tx of allTransactions'
-                    [ngStyle]="{'background' : tx.win ? 'rgb(114, 189, 160)' : 'rgb(189, 114, 114)'}"
+                    [ngStyle]="{'background' : tx.win ? tx.pnlAmount > 2 ? 'rgb(114, 189, 160)': 'rgb(189, 171, 114)' : 'rgb(189, 114, 114)'}"
                 >
                     <div class="time" style="width: 40%">
                         <span class='open'>Open Time: {{ tx.openAt }}</span>
