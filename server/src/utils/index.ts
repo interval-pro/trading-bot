@@ -3,8 +3,8 @@ import * as fs from 'fs';
 
 export const getDate = (time: string = undefined) => {
     const _time = parseInt(time);
-    // const converted = moment(time).utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
-    const converted = moment.unix(_time).utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
+    const converted = moment(time).utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
+    // const converted = moment.unix(_time).utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
     return converted;
 }
 
