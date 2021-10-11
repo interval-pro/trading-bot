@@ -221,7 +221,7 @@ export class Bot implements IBotConfig {
       // }
 
       this.openedPosition = new Position(type, amount, price, this.equity, this.leverage, time);
-      if ((this.sltp.sl || this.sltp.tp) && !this.histRawData) this.openSLTPSubscriber(type, price);
+      // if ((this.sltp.sl || this.sltp.tp) && !this.histRawData) this.openSLTPSubscriber(type, price);
       this.logData(LogType.SUCCESS, `New ${type} Position opened!`);
     }
   
@@ -307,6 +307,7 @@ export class Bot implements IBotConfig {
         const shortDot = parseFloat(cc['Blue Wave Crossing Down']) || null;
         const yxSignal = parseFloat(cc['Yellow X']);
         const bdSignal = parseFloat(cc['Blood Diamond']);
+        // console.log({time, priceClose, priceHigh, priceLow, longDot, shortDot, yxSignal, bdSignal})
 
           if (yxSignal && this.yx) {
               if (this.openedPosition?.positionType === "LONG") await this.closePosition(priceClose, time);
@@ -320,22 +321,22 @@ export class Bot implements IBotConfig {
 
           if (this.strategy === 'os') {
               if (longDot && longDot <= -60) {
-                if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
+                if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
               }
         
               if (shortDot && shortDot >= 60) {
-                if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
+                if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
               }
           }
 
           if (this.strategy === 'os-close') {
             if (longDot && longDot <= -60) {
-              if (this.openedPosition?.positionType === "LONG") await this.closePosition(priceClose, time);
-              if (!this.openedPosition) await this.openPosition('SHORT');
-            }
-            if (shortDot && shortDot >= 60) {
               if (this.openedPosition?.positionType === "SHORT") await this.closePosition(priceClose, time);
               if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
+            }
+            if (shortDot && shortDot >= 60) {
+              if (this.openedPosition?.positionType === "LONG") await this.closePosition(priceClose, time);
+              if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
             }
           }
 

@@ -9,7 +9,6 @@ bot.post(`/new-hist-bot`, (req, res) => {
     try {
         const botConfig = req.body as IBotConfig;
         myBotManager.addBot(botConfig, () => {
-            console.log(":)")
             mainSocket.emit('botsList', myBotManager.allBots);
             res.send({ data: true });
         });

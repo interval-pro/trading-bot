@@ -1,7 +1,12 @@
 import * as moment from 'moment';
 import * as fs from 'fs';
 
-export const getDate = (time: string = undefined) => moment(time).utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
+export const getDate = (time: string = undefined) => {
+    const _time = parseInt(time);
+    // const converted = moment(time).utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
+    const converted = moment.unix(_time).utcOffset(3).format('DD/MM/YYYY hh:mm:ss A');
+    return converted;
+}
 
 export const localLog = [];
 
@@ -9,7 +14,7 @@ export const addLog = (name: string, data: LogData) => {
     const stringData = JSON.stringify(data, null, 4);
     fs.appendFile(`${name}.bot.log`, stringData + '\n', (err) => {
         if (err) throw err;
-        console.log(stringData)
+        // console.log(stringData)
     });
 }
 
@@ -19,7 +24,7 @@ export const addProductionLog = (message: string) => {
     const stringData = JSON.stringify(data, null, 4);
     fs.appendFile(`prod.bot.log`, stringData + '\n', (err) => {
         if (err) throw err;
-        console.log(stringData)
+        // console.log(stringData)
     });
 }
 
