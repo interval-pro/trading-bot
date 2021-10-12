@@ -22,6 +22,7 @@ export class NewTradingBotDialog implements OnInit {
   sltpFB: FormGroup = new FormGroup({});
 
   histFileData: any = null;
+  openLevel: number = 60;
   constructor(
       private socketService: SocketService,
       private botsService: BotsService,
@@ -105,6 +106,7 @@ export class NewTradingBotDialog implements OnInit {
       tp: tp || null,
     };
     botConfig.histData = this.histFileData || null;
+    botConfig.openLevel = this.openLevel;
     const res = await this.botsService.postNewBot(botConfig);
     console.log({res});
     // this.socketService.socket.emit('addNewBot', botConfig);

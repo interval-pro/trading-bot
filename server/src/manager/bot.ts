@@ -27,6 +27,7 @@ export interface IBotConfig {
     tslAct?: number;
     tslCBRate?: number;
     histData?: string;
+    openLevel?: number;
 };
 
 export class Bot implements IBotConfig {
@@ -68,6 +69,7 @@ export class Bot implements IBotConfig {
     listener: any;
     histRawData: string;
 
+    openLevel: number;
     constructor(botConfig: IBotConfig, id: number) {
       const {
           pair,
@@ -78,6 +80,7 @@ export class Bot implements IBotConfig {
           yxbd,
           sltp,
           histData,
+          openLevel,
       } = botConfig;
 
       this.id = id;
@@ -108,6 +111,8 @@ export class Bot implements IBotConfig {
         tp: sltp?.tp,
         isHist: histData ? true : false,
       }
+      
+      this.openLevel = openLevel;
       this.logData(LogType.SUCCESS, `Bot Started!`, logData);
       if (this.histRawData) this.processHistData();
     }
@@ -297,6 +302,8 @@ export class Bot implements IBotConfig {
       console.log(`Process Hist data`);
       const histDataArray: any[] = await convertCSVtoJSON(this.histRawData) as any[];
       for (let i = 0; i < histDataArray.length - 1; i++) {
+        const openLevel = this.openLevel;
+        const revertedOpenLevel = this.openLevel * -1;
         await new Promise((res) => setTimeout(() => res(true), 5));
         const cc = histDataArray[i];
         const time = cc['time'];
@@ -320,21 +327,21 @@ export class Bot implements IBotConfig {
           }
 
           if (this.strategy === 'os') {
-              if (longDot && longDot <= -60) {
+              if (longDot && longDot <= revertedOpenLevel) {
                 if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
               }
         
-              if (shortDot && shortDot >= 60) {
+              if (shortDot && shortDot >= openLevel) {
                 if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
               }
           }
 
           if (this.strategy === 'os-close') {
-            if (longDot && longDot <= -60) {
+            if (longDot && longDot <= revertedOpenLevel) {
               if (this.openedPosition?.positionType === "SHORT") await this.closePosition(priceClose, time);
               if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
             }
-            if (shortDot && shortDot >= 60) {
+            if (shortDot && shortDot >= openLevel) {
               if (this.openedPosition?.positionType === "LONG") await this.closePosition(priceClose, time);
               if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
             }
