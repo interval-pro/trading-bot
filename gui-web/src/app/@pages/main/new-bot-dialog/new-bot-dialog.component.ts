@@ -23,6 +23,7 @@ export class NewTradingBotDialog implements OnInit {
 
   histFileData: any = null;
   openLevel: number = 60;
+  stoRSI: number = 0;
   constructor(
       private socketService: SocketService,
       private botsService: BotsService,
@@ -36,10 +37,10 @@ export class NewTradingBotDialog implements OnInit {
 
   private _buildForms() {
     this.cbFb = this.fb.group({
-      pair: [null, [Validators.required]],
-      initAmount: [100, [Validators.required, Validators.min(10)]],
-      percentForEachTrade: [0.1, [Validators.required, Validators.min(0), Validators.max(1)]],
-      leverage: [5, [Validators.required, Validators.min(2), Validators.max(50)]],
+      pair: ['ADAUSDT', [Validators.required]],
+      initAmount: [200, [Validators.required, Validators.min(10)]],
+      percentForEachTrade: [0.8, [Validators.required, Validators.min(0), Validators.max(1)]],
+      leverage: [10, [Validators.required, Validators.min(2), Validators.max(50)]],
       isSl: [false],
       isTsl: [false],
       sl: [0.01],
@@ -107,6 +108,7 @@ export class NewTradingBotDialog implements OnInit {
     };
     botConfig.histData = this.histFileData || null;
     botConfig.openLevel = this.openLevel;
+    botConfig.stoRSI = this.stoRSI;
     const res = await this.botsService.postNewBot(botConfig);
     console.log({res});
     // this.socketService.socket.emit('addNewBot', botConfig);

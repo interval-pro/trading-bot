@@ -28,6 +28,7 @@ export interface IBotConfig {
     tslCBRate?: number;
     histData?: string;
     openLevel?: number;
+    stoRSI?: number;
 };
 
 export class Bot implements IBotConfig {
@@ -70,6 +71,7 @@ export class Bot implements IBotConfig {
     histRawData: string;
 
     openLevel: number;
+    stoRSI: number;
     constructor(botConfig: IBotConfig, id: number) {
       const {
           pair,
@@ -81,6 +83,7 @@ export class Bot implements IBotConfig {
           sltp,
           histData,
           openLevel,
+          stoRSI,
       } = botConfig;
 
       this.id = id;
@@ -110,9 +113,12 @@ export class Bot implements IBotConfig {
         sl: sltp?.sl,
         tp: sltp?.tp,
         isHist: histData ? true : false,
+        stoRSI: stoRSI,
+        openLevel: openLevel,
       }
       
       this.openLevel = openLevel;
+      this.stoRSI = stoRSI;
       this.logData(LogType.SUCCESS, `Bot Started!`, logData);
       if (this.histRawData) this.processHistData();
     }
@@ -304,6 +310,8 @@ export class Bot implements IBotConfig {
       for (let i = 0; i < histDataArray.length - 1; i++) {
         const openLevel = this.openLevel;
         const revertedOpenLevel = this.openLevel * -1;
+        const rsiTop = 100 - this.stoRSI;
+        const rsiBottom = this.stoRSI;
         await new Promise((res) => setTimeout(() => res(true), 5));
         const cc = histDataArray[i];
         const time = cc['time'];
@@ -314,6 +322,7 @@ export class Bot implements IBotConfig {
         const shortDot = parseFloat(cc['Blue Wave Crossing Down']) || null;
         const yxSignal = parseFloat(cc['Yellow X']);
         const bdSignal = parseFloat(cc['Blood Diamond']);
+        const rsi = parseFloat(cc['Sto RSI']);
         // console.log({time, priceClose, priceHigh, priceLow, longDot, shortDot, yxSignal, bdSignal})
 
           if (yxSignal && this.yx) {
@@ -339,11 +348,19 @@ export class Bot implements IBotConfig {
           if (this.strategy === 'os-close') {
             if (longDot && longDot <= revertedOpenLevel) {
               if (this.openedPosition?.positionType === "SHORT") await this.closePosition(priceClose, time);
-              if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
+              if (this.stoRSI) {
+                if (!this.openedPosition && rsi < rsiBottom) await this.openPosition('LONG', priceClose, time);
+              } else {
+                if (!this.openedPosition) await this.openPosition('LONG', priceClose, time);
+              }
             }
             if (shortDot && shortDot >= openLevel) {
               if (this.openedPosition?.positionType === "LONG") await this.closePosition(priceClose, time);
-              if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
+              if (this.stoRSI) {
+                if (!this.openedPosition && rsi > rsiTop) await this.openPosition('SHORT', priceClose, time);
+              } else {
+                if (!this.openedPosition) await this.openPosition('SHORT', priceClose, time);
+              }
             }
           }
 

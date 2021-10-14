@@ -56,10 +56,14 @@
                         <input formControlName='tp' step='0.001' type="number" matInput>
                       </mat-form-field>
                 </div>
-                <div>
+                <div style="display: flex; justify-content: space-around;">
                     <mat-form-field>
                         <mat-label>Open Level</mat-label>
                         <input step='1' type="number" matInput [(ngModel)]='openLevel'>
+                      </mat-form-field>
+                      <mat-form-field>
+                        <mat-label>STO RSI</mat-label>
+                        <input step='1' type="number" matInput [(ngModel)]='stoRSI'>
                       </mat-form-field>
                 </div>
                 <div class="yxbd" style="display: flex; align-items: center; width: 100%;justify-content: space-around;" [formGroup]='yxbdFb' >
