@@ -122,7 +122,7 @@
                         <button [ngStyle]='{visibility: isHist.checked ? "visible" : "hidden"}' mat-mini-fab (click)="fileInput.click()">
                             <mat-icon>upload</mat-icon>
                         </button>
-                        <input hidden (change)='handleFileInputChange($event)' #fileInput type="file" id="file">
+                        <input hidden (change)='handleFileInputChange($event)' #fileInput type="file" id="file" multiple>
                     </p>
                 </div>
             </div>
