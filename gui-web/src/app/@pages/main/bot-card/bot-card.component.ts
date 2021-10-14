@@ -34,7 +34,7 @@ export class BotCardComponent {
       .filter((t: any) => t.win === win)
       .map((e: any) => parseFloat(e.pnlAmount.toFixed(6)))
       .reduce((prev: number, curr: number) => prev + curr, 0);
-    return amount.toFixed(2)
+    return amount ? amount.toFixed(2) : '0.00';
   }
 
   getSumPercentage(win: boolean) {
@@ -44,7 +44,7 @@ export class BotCardComponent {
     const percent = win
       ? (100 * winsAmount) / total
       : (100 * lossesAmount) / total;
-    return  percent.toFixed(2);
+    return  percent ? percent.toFixed(2) : '0.00';
   }
 
   
@@ -52,7 +52,7 @@ export class BotCardComponent {
     const allTxsLength = this.allTransactions.length;
     const winOrLossTxsLength = this.allTransactions.filter((t: any) => t.win === win).length;
     const percent = (100 * winOrLossTxsLength) / allTxsLength;
-    return percent.toFixed(2);
+    return percent ? percent.toFixed(2) : '0.00';
   }
 
   toggleExapnd() {

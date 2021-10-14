@@ -1,6 +1,6 @@
 <div 
     class="bot-card-container" 
-    [ngStyle]="{ maxHeight: isExpanded ? 'unset' : '3rem', minHeight: isExpanded ? '21rem' : '3rem' }"
+    [ngStyle]="{ maxHeight: isExpanded ? 'unset' : '6rem', minHeight: isExpanded ? '21rem' : '6rem' }"
 >
     <div class="head"
     (click)='toggleExapnd()'
@@ -22,14 +22,6 @@
     </div>
     <div class="expanded">
         <div class="expanded-content">
-            <div class="sub-info">
-                    <span>Equity: {{bot.equity.toFixed(4)}}</span>
-                    <span>tradeAmount: {{ bot.percentForEachTrade * 100 }}%</span>
-                    <span>TP: {{ bot.sltp.tp ? (bot.sltp.tp * 100) + '%' : 'Unset' }}</span>
-                    <span>SL: {{ bot.sltp.sl ? (bot.sltp.sl * 100) + '%' : 'Unset' }}</span>
-                    <span>YX: {{ bot.yxbd.yx }}</span>
-                    <span>BD: {{ bot.yxbd.bd }}</span>
-            </div>
             <div class="sub-info2">
                 <span>
                     <span>Sum: </span>
@@ -51,7 +43,15 @@
                 </span>
                 <span>stoRSI: {{ bot.stoRSI || 'Unset' }}</span>
                 <span>openLevl: {{ bot.openLevel || 'Unset' }}</span>
-        </div>
+            </div>
+            <div class="sub-info">
+                <span>Equity: {{bot.equity.toFixed(4)}}</span>
+                <span>tradeAmount: {{ bot.percentForEachTrade * 100 }}%</span>
+                <span>TP: {{ bot.sltp.tp ? (bot.sltp.tp * 100) + '%' : 'Unset' }}</span>
+                <span>SL: {{ bot.sltp.sl ? (bot.sltp.sl * 100) + '%' : 'Unset' }}</span>
+                <span>YX: {{ bot.yxbd.yx }}</span>
+                <span>BD: {{ bot.yxbd.bd }}</span>
+            </div>
             <div class="transactions-container" 
                 *ngIf='allTransactions.length;else noTransactionsSpan'     
                 [style.height]='defaultTxConainerHeight'
