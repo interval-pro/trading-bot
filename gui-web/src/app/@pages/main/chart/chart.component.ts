@@ -24,7 +24,5 @@ export class ChartComponent implements OnInit {
       "container_id": "chart",
       "hide_side_toolbar": false,
     });
-    console.log((window as any).TradingView.onready(() => console.log({chart, e: (window as any).TradingView})));
-    console.log(chart.ready(() => console.log({chart})))
   }
 }

@@ -9,8 +9,6 @@
                             <mat-label>Pair: </mat-label>
                             <mat-select formControlName='pair'>
                                 <mat-option value="ADAUSDT">ADA/USDT</mat-option>
-                                <mat-option value="LTCUSDT" disabled>LTC/USDT</mat-option>
-                                <mat-option value="BTCUSDT" disabled>BTC/USDT</mat-option>
                             </mat-select>
                           </mat-form-field>
                           <mat-form-field>
@@ -33,16 +31,7 @@
                         <mat-form-field>
                             <mat-label>Strategy: </mat-label>
                             <mat-select formControlName='strategy'>
-                                <mat-option value='tons-7min' disabled>Tons 7 min</mat-option>
-                                <mat-option value='tons-30min' disabled>Tons 30 min</mat-option>
-                                <mat-option value='tons-10-3-long' disabled>Tons 10-3 long</mat-option>
-                                <mat-option value='os'>Old strategy</mat-option>
                                 <mat-option value='os-close'>Old strategy - closeEachDot</mat-option>
-
-                                <!-- <mat-option value='pb' disabled>Peak & Bottom</mat-option>
-                                <mat-option value='1m-5m' disabled>1m-5m</mat-option>
-                                <mat-option value='1h-7m' disabled>1h-7m</mat-option>
-                                <mat-option value='1h-15m' disabled>1h-15m</mat-option> -->
                             </mat-select>
                           </mat-form-field>
                 </div>
@@ -55,56 +44,8 @@
                         <mat-label>Take Profit</mat-label>
                         <input formControlName='tp' step='0.001' type="number" matInput>
                       </mat-form-field>
-            </div>
-                <div class="yxbd" style="display: flex; align-items: center; width: 100%;justify-content: space-around;" [formGroup]='yxbdFb' >
-                    <mat-checkbox formControlName='yx' labelPosition="before">YX: </mat-checkbox>
-                    <mat-checkbox formControlName='yx' labelPosition="before">YX: </mat-checkbox>
                 </div>
-                <div class="yxbd" [formGroup]='yxbdFb' *ngIf='false'>
-                    <div class='sub'>
-                        <p style='width: 15%'>
-                            <mat-checkbox formControlName='yx' labelPosition="before">YX: </mat-checkbox>
-                        </p>
-                        <p style='width: 40%'>
-                            <mat-form-field [ngStyle]='{"display" : yxbdFb.value.yx ? "inline-block" : "none" }'>
-                                <mat-label>YX Action: </mat-label>
-                                <mat-select formControlName='yxAction'>
-                                    <mat-option value='closeLong'>Close Long Position</mat-option>
-                                    <mat-option value='openShort'>Open Short Position</mat-option>
-                                    <mat-option value='timeout' disabled>Timeout</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </p>
-                        <p style='width: 45%'>
-                            <mat-form-field [ngStyle]='{"display" : yxbdFb.value.yx && yxbdFb.value.yxAction === "timeout" ? "inline-block" : "none" }'>
-                                <mat-label>Timeout (candles): </mat-label>
-                                <input formControlName='yxTimeout' step='1' type="number" matInput>
-                            </mat-form-field>
-                        </p>
-                    </div>
-                    <div class='sub'>
-                        <p style='width: 15%'>
-                            <mat-checkbox formControlName='bd' labelPosition="before">BD: </mat-checkbox>
-                        </p>
-                        <p style='width: 40%'>
-                            <mat-form-field [ngStyle]='{"display" : yxbdFb.value.bd ? "inline-block" : "none" }'>
-                                <mat-label>BD Action: </mat-label>
-                                <mat-select formControlName='bdAction'>
-                                    <mat-option value='closeLong'>Close Long Position</mat-option>
-                                    <mat-option value='openShort'>Open Short Position</mat-option>
-                                    <mat-option value='timeout' disabled>Timeout</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </p>
-                        <p style='width: 45%'>
-                            <mat-form-field [ngStyle]='{"display" : yxbdFb.value.bd && yxbdFb.value.bdAction === "timeout" ? "inline-block" : "none" }'>
-                                <mat-label>Timeout (candles): </mat-label>
-                                <input formControlName='bdTimeout' step='1' type="number" matInput>
-                            </mat-form-field>
-                        </p>
-                    </div>
-                </div>
-                <div class="hist">
+                <!-- <div class="hist">
                     <p style='width: 15%; margin-right: 2rem;'>
                         <mat-checkbox #isHist labelPosition="before">Historical: </mat-checkbox>
                     </p>
@@ -114,11 +55,12 @@
                         </button>
                         <input hidden (change)='handleFileInputChange($event)' #fileInput type="file" id="file">
                     </p>
-                </div>
+                </div> -->
             </div>
         </mat-card-content>
         <div class="buttons">
-            <button mat-raised-button color="primary" (click)="addBot()" [disabled]='!cbFb.valid || !sFb.valid || (isHist.checked && !histFileData)'>Add new Bot</button>
+            <!-- <button mat-raised-button color="primary" (click)="addBot()" [disabled]='!cbFb.valid || !sFb.valid || (isHist.checked && !histFileData)'>Add new Bot</button> -->
+            <button mat-raised-button color="primary" (click)="addBot()" [disabled]='!cbFb.valid || !sFb.valid'>Add new Bot</button>
         </div>
     </mat-card>
 </div>

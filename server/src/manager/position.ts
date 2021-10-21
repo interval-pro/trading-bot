@@ -23,7 +23,7 @@ export class Position {
     pnlAmount: number = null;
   
     win: boolean = null;
-  
+    slClose: boolean = false;
     constructor(
       positionType: PositionType,
       amount: number,
@@ -45,7 +45,7 @@ export class Position {
       this.borrowAmount = this.positionAmount - amount;
     }
   
-    close(price: number, time: string = undefined) {
+    close(price: number, time: string = undefined, slClose: boolean = false) {
       const isLong = this.positionType === 'LONG';
       this.closedAt = getDate(time);
       this.closePrice = price;
@@ -58,5 +58,6 @@ export class Position {
   
       this.win = this.pnlAmount > 0;
       this.closeEquity = this.openEquity + this.pnlAmount;
+      if (slClose) this.slClose = slClose;
     }
   }
