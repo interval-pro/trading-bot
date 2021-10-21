@@ -4,7 +4,9 @@ import { socket as mainSocket } from '../index';
 import { binanceApi } from "../apis/binance-api.service";
 import { myBotManager } from './manager';
 import { adaSubs } from "./events";
-import { myBinance } from './prodInstance';
+import { ProdInstance } from './prodInstance';
+
+let myBinance: ProdInstance;
 
 export interface IBotConfig {
     pair: string,
@@ -51,7 +53,10 @@ export class Bot implements IBotConfig {
       } = botConfig;
 
       this.id = id;
-      if (id === 1) this.prod = true;
+      if (id === 1) {
+        this.prod = true;
+        myBinance = new ProdInstance();
+      }
       this.pair = pair;
       this.initAmount = initAmount;
       this.equity = initAmount;

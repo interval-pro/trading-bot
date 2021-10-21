@@ -2,9 +2,9 @@ import { envConfig } from '../config';
 import * as Binance from 'node-binance-api'
 import { addProductionLog } from '../utils';
 
-class ProdInstance {
+export class ProdInstance {
     private binance: Binance;
-    private procentForEachTrade: number = 0.8;
+    private procentForEachTrade: number = 0.4;
     private laverage: number = 10;
 
     constructor() {
@@ -107,5 +107,3 @@ class ProdInstance {
       }
     }
   }
-
-  export const myBinance = new ProdInstance();
