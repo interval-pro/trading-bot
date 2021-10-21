@@ -1,23 +1,20 @@
 import * as express from "express";
 import * as cors from 'cors';
+import * as https from 'https';
 
 import * as Rotues from './routes';
-import { envConfig } from './config';
+import { envConfig, certObj } from './config';
 import { Server } from 'socket.io';
 import { handleSocketConnection } from './sockets';
-const bodyParser = require('body-parser');
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser({ limit: '50mb' }))
-app.use(bodyParser.json())
 Rotues.configureRoutes(app);
 
 const SERVER_PORT = envConfig.PORT;
 const listernCB = () => console.log(`Server Started on port ${SERVER_PORT}`);
 
-export const socket = new Server(3004, {
+export const socket = new Server(3001, {
    cors: {
         origin: "*",
         methods: ['GET', "POST"],
@@ -26,4 +23,5 @@ export const socket = new Server(3004, {
 
 socket.on('connection', handleSocketConnection)
 
-app.listen(SERVER_PORT, listernCB);
+const httpsServer = https.createServer(certObj, app);
+httpsServer.listen(SERVER_PORT, listernCB);

@@ -8,7 +8,7 @@ export const envConfig = {
     BINANCE_API_SECRET: process.env.BINANCE_API_SECRET,
 }
 
-// export const certObj = {
-//     key: fs.readFileSync('./server.key'),
-//     cert: fs.readFileSync('./server.cert')
-// };
+export const certObj = {
+    key: fs.readFileSync('./server.key'),
+    cert: fs.readFileSync('./server.cert')
+};

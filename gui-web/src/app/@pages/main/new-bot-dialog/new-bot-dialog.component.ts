@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { BotsService } from 'src/app/@core/services/bots.service';
 import { SocketService } from 'src/app/@core/services/sockets.service';
 
 @Component({
@@ -21,12 +20,9 @@ export class NewTradingBotDialog implements OnInit {
   yxbdFb: FormGroup = new FormGroup({});
   sltpFB: FormGroup = new FormGroup({});
 
-  histFileData: any[] = [];
-  openLevel: number = 60;
-  stoRSI: number = 0;
+  histFileData: any = null;
   constructor(
       private socketService: SocketService,
-      private botsService: BotsService,
       private dialogService: MatDialog,
       private fb: FormBuilder,
   ) {}
@@ -37,10 +33,10 @@ export class NewTradingBotDialog implements OnInit {
 
   private _buildForms() {
     this.cbFb = this.fb.group({
-      pair: ['ADAUSDT', [Validators.required]],
-      initAmount: [200, [Validators.required, Validators.min(10)]],
-      percentForEachTrade: [0.8, [Validators.required, Validators.min(0), Validators.max(1)]],
-      leverage: [10, [Validators.required, Validators.min(2), Validators.max(50)]],
+      pair: [null, [Validators.required]],
+      initAmount: [100, [Validators.required, Validators.min(10)]],
+      percentForEachTrade: [0.1, [Validators.required, Validators.min(0), Validators.max(1)]],
+      leverage: [5, [Validators.required, Validators.min(2), Validators.max(50)]],
       isSl: [false],
       isTsl: [false],
       sl: [0.01],
@@ -68,15 +64,15 @@ export class NewTradingBotDialog implements OnInit {
   }
 
   handleFileInputChange(event: any) {
-    const files = [...event.target.files];
-    files.forEach((file: any, i: number) => {
-      const fileReader = new FileReader();
-      fileReader.onload = () => this.histFileData[i] = fileReader.result
-      fileReader.readAsText(file);
-    });
+    const file = event.target.files[0];
+    let fileReader = new FileReader();
+    fileReader.onload = () => {
+      this.histFileData = fileReader.result;
+    }
+    fileReader.readAsText(file);
   }
 
-  async addBot() {
+  addBot() {
     const {
       pair, initAmount,
       percentForEachTrade, leverage,
@@ -106,17 +102,9 @@ export class NewTradingBotDialog implements OnInit {
       sl: sl || null,
       tp: tp || null,
     };
-    botConfig.openLevel = this.openLevel;
-    botConfig.stoRSI = this.stoRSI;
-    if (this.histFileData?.length) {
-      this.histFileData.forEach(async (hist: any) => {
-        const _botConfig = botConfig;
-        _botConfig.histData = hist;
-        const res = await this.botsService.postNewBot(botConfig);
-      });
-    } else {
-      const res = await this.botsService.postNewBot(botConfig);
-    }
+    botConfig.histData = this.histFileData || null;
+    console.log(botConfig);
+    this.socketService.socket.emit('addNewBot', botConfig);
     this.dialogService.closeAll();
   }
 
