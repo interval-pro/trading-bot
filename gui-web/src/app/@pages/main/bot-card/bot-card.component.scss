@@ -42,28 +42,19 @@
         border-top: 1.5px solid gray;
         position: relative;
         .expanded-content {
-            padding: 0.5rem;
+            padding: 1rem;
             .sub-info {
-                min-height: 2rem;
                 width: 100%;
                 height: 20%;
                 display: flex;
                 justify-content: space-around;
-                align-items: center;
             }
-            .sub-info2 {
-                min-height: 2rem;
-                width: 100%;
-                height: 20%;
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-            }
+
             .transactions-container {
                 resize: vertical;
                 margin-top: 1rem;
                 width: 100%;
-                height: 60%;
+                height: 80%;
                 display: flex;
                 flex-direction: column;
                 overflow-y: auto;
