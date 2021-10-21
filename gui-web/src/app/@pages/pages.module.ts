@@ -6,7 +6,7 @@ import { NewTradingBotDialog } from './main/new-bot-dialog/new-bot-dialog.compon
 import { BotCardComponent } from './main/bot-card/bot-card.component';
 
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
@@ -28,6 +28,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatInputModule,
     MatCheckboxModule,
     MatFormFieldModule,
+    FormsModule,
   ],
   declarations: [
     MainPage,

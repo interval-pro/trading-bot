@@ -55,10 +55,20 @@
                         <mat-label>Take Profit</mat-label>
                         <input formControlName='tp' step='0.001' type="number" matInput>
                       </mat-form-field>
-            </div>
+                </div>
+                <div style="display: flex; justify-content: space-around;">
+                    <mat-form-field>
+                        <mat-label>Open Level</mat-label>
+                        <input step='1' type="number" matInput [(ngModel)]='openLevel'>
+                      </mat-form-field>
+                      <mat-form-field>
+                        <mat-label>STO RSI</mat-label>
+                        <input step='1' type="number" matInput [(ngModel)]='stoRSI'>
+                      </mat-form-field>
+                </div>
                 <div class="yxbd" style="display: flex; align-items: center; width: 100%;justify-content: space-around;" [formGroup]='yxbdFb' >
                     <mat-checkbox formControlName='yx' labelPosition="before">YX: </mat-checkbox>
-                    <mat-checkbox formControlName='yx' labelPosition="before">YX: </mat-checkbox>
+                    <mat-checkbox formControlName='bd' labelPosition="before">BD: </mat-checkbox>
                 </div>
                 <div class="yxbd" [formGroup]='yxbdFb' *ngIf='false'>
                     <div class='sub'>
@@ -112,7 +122,7 @@
                         <button [ngStyle]='{visibility: isHist.checked ? "visible" : "hidden"}' mat-mini-fab (click)="fileInput.click()">
                             <mat-icon>upload</mat-icon>
                         </button>
-                        <input hidden (change)='handleFileInputChange($event)' #fileInput type="file" id="file">
+                        <input hidden (change)='handleFileInputChange($event)' #fileInput type="file" id="file" multiple>
                     </p>
                 </div>
             </div>

@@ -9,12 +9,12 @@ export const handleSocketConnection = (socket: any) => {
     socket.on('addNewBot', (botConfig: IBotConfig) => {
       myBotManager.addBot(botConfig, () => {
         mainSocket.emit('botsList', myBotManager.allBots);
-      })
-    })
+      });
+    });
 
     socket.on('removeBot', (id: number) => {
       myBotManager.removeBot(id, () => {
         mainSocket.emit('botsList', myBotManager.allBots);
-      })
-    })
+      });
+    });
 }

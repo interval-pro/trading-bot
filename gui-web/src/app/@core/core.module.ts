@@ -1,3 +1,4 @@
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { ApiModule } from './api/api.module';
 import { ServicesModule } from './services/services.module';
@@ -6,6 +7,7 @@ import { ServicesModule } from './services/services.module';
   imports: [
     ApiModule,
     ServicesModule,
+    HttpClientModule,
   ],
   declarations: [],
   providers: [],
