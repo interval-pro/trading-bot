@@ -4,7 +4,7 @@ import { addProductionLog } from '../utils';
 
 export class ProdInstance {
     private binance: Binance;
-    private procentForEachTrade: number = 0.4;
+    private procentForEachTrade: number = 0.8;
     private laverage: number = 10;
 
     constructor() {
